@@ -1,0 +1,36 @@
+---
+description: Vitest and Playwright testing conventions for EventBook
+globs: "**/*.{test.ts,spec.ts}"
+alwaysApply: false
+---
+
+# Testing Conventions
+
+EventBook uses two test layers. Match the layer to the file you are editing.
+
+## Vitest (unit/integration)
+
+- Colocate tests as `src/**/*.test.ts` next to the source file under test.
+- Reference shape: @src/lib/utils.test.ts
+- Config: @vitest.config.ts
+- Run all unit tests: `npm test`
+- Run one file: `npx vitest run src/lib/utils.test.ts`
+
+When adding a new `src/pages/api/**` endpoint, add at least one Vitest test covering the handler logic or extracted pure functions.
+
+## Playwright (E2E)
+
+- Place specs in `tests/**/*.spec.ts` — not under `src/`.
+- Config: @playwright.config.ts
+- Run E2E: `npx playwright test`
+- Auth flows (`/auth/signin`, `/auth/signup`, `/dashboard` guard) require E2E coverage before merge.
+
+Use `page.goto('/')` against the local dev server; do not hardcode external URLs in new specs.
+
+## General
+
+- Prefer testing behavior and return values, not implementation details.
+- Do not skip tests without a tracked reason in the test name or a linked issue.
+- CI currently runs lint + build only (@.github/workflows/ci.yml); still run `npm test` locally before PRs.
+
+See @AGENTS.md for repo-wide rules and @context/foundation/prd.md for MVP scope.

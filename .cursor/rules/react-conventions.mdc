@@ -1,0 +1,45 @@
+---
+description: React 19 island conventions for EventBook components
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# React Conventions
+
+Use React only for **interactive islands** embedded in Astro pages. Static or server-rendered UI belongs in `.astro` files, not React.
+
+## File placement
+
+- `src/components/ui/` — reusable primitives (shadcn-style); reference: @src/components/ui/button.tsx
+- `src/components/auth/` — auth forms and shared form pieces
+- `src/components/<feature>/` — feature-specific interactive UI
+
+Import shared code via `@/*` (maps to `src/*`). Do not import from `src/pages/` into components.
+
+## Component shape
+
+- Functional components only; no class components.
+- Export **named** exports from `ui/` (`export { Button }`); **default** export for top-level form/page islands (see @src/components/auth/SignInForm.tsx).
+- Define props with a `Props` interface or `React.ComponentProps<"element">` extension — no implicit `any`.
+- Prefix intentionally unused bindings with `_`.
+
+## Styling
+
+- Tailwind utility classes only; merge conditionals with `cn()` from @src/lib/utils.ts.
+- UI variants: use `cva` + `VariantProps` pattern from @src/components/ui/button.tsx — do not invent ad-hoc variant string concatenation.
+
+## Data & auth
+
+- Do not instantiate Supabase in components — use server endpoints (`src/pages/api/`) or props/`serverError` passed from Astro pages.
+- Auth forms may POST to `/api/auth/*` routes (see SignInForm pattern); keep validation client-side for UX, server-side for security.
+
+## Icons & accessibility
+
+- Icons: `lucide-react` with `className="size-4"` (or match sibling usage).
+- Form fields: associate `label` + `id`, surface errors inline — follow @src/components/auth/FormField.tsx.
+
+## Lint enforcement
+
+React Compiler and hooks rules are errors (@eslint.config.js). Run `npm run lint` after edits; do not disable `react-compiler/react-compiler`.
+
+See @AGENTS.md for repo-wide rules.

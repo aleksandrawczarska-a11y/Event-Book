@@ -1,0 +1,41 @@
+---
+description: UTC dates and formatDate() — no ad-hoc toISOString() in app code
+globs: "src/**/*.{ts,tsx,astro}"
+alwaysApply: false
+---
+
+# Date Handling (UTC)
+
+EventBook treats all dates as **UTC**. Format and serialize dates only through helpers in `@/lib/format-date` — not loose `new Date().toISOString()` or `toLocaleDateString()` in pages, components, or API handlers.
+
+```typescript
+// ✅ GOOD
+import { formatDate } from "@/lib/format-date";
+const label = formatDate(eventDate, "date"); // display
+const stored = formatDate(eventDate, "iso"); // persistence / JSON
+
+// ❌ BAD
+eventDate.toISOString();
+new Date().toISOString();
+date.toLocaleDateString("pl-PL");
+```
+
+## Rules
+
+- Import `formatDate` (and any parse helpers) from `@/lib/format-date` only — do not duplicate date logic inline.
+- Persist and transmit timestamps as UTC ISO strings produced via `formatDate(..., "iso")` or the project's parse helper — never mix local timezone offsets in stored values.
+- Display strings for UI (lists, forms, emails) use `formatDate(..., "date" | "datetime")` — not raw ISO in user-facing copy.
+- Accept user input as strings; parse through `@/lib/format-date` before comparing or storing — do not rely on implicit local `Date` parsing in feature code.
+
+## API & database
+
+- JSON fields and Supabase columns: UTC ISO strings only.
+- Do not embed formatted locale strings in API responses; send ISO UTC and format on the client/server at render time with `formatDate()`.
+
+## Tests
+
+Colocate tests in `src/lib/format-date.test.ts` for new format modes or edge cases (invalid input, midnight UTC).
+
+Canonical implementation: @src/lib/format-date.ts
+
+See @AGENTS.md for repo-wide rules.

@@ -1,0 +1,26 @@
+{
+  "terminalAllowlist": [
+    "npm",
+    "npx",
+    "node",
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "git branch",
+    "git checkout",
+    "git stash"
+  ],
+  "autoRun": {
+    "allow_instructions": [
+      "Allow reading, editing, and writing files in the workspace when consistent with the user's request."
+    ],
+    "block_instructions": [
+      "Never run rm -rf or other destructive recursive delete commands.",
+      "Never run curl without explicit user approval.",
+      "Never run wget without explicit user approval.",
+      "Never run git push without explicit user approval."
+    ]
+  }
+}

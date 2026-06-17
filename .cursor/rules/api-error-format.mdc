@@ -1,0 +1,44 @@
+---
+description: Structured JSON error shape for API routes
+globs: "src/pages/api/**/*.ts"
+alwaysApply: false
+---
+
+# API Error Response Format
+
+JSON API handlers must return errors in this shape — never `{ error: string }` or a bare string body.
+
+```typescript
+// ✅ GOOD
+return Response.json(
+  { error: { code: "AUTH_INVALID_CREDENTIALS", message: "Invalid email or password", context: {} } },
+  { status: 401 },
+);
+
+// ❌ BAD
+return Response.json({ error: "Invalid email or password" }, { status: 401 });
+return Response.json("Something went wrong", { status: 500 });
+```
+
+## Fields
+
+| Field | Type | Rules |
+|---|---|---|
+| `code` | `string` | Stable, `SCREAMING_SNAKE_CASE`, machine-readable (e.g. `VALIDATION_FAILED`, `SUPABASE_NOT_CONFIGURED`) |
+| `message` | `string` | Human-readable, safe to show in UI |
+| `context` | `Record<string, unknown>` | Optional detail (field names, limits); use `{}` when empty — omitting `context` is not allowed |
+
+## HTTP status
+
+- Map `code` to the correct status: `400` validation, `401` auth, `403` forbidden, `404` not found, `500` unexpected.
+- Do not leak stack traces or raw Supabase errors in `message`; put safe details in `context` if needed.
+
+## Form POST routes (exception)
+
+Existing auth form handlers (@src/pages/api/auth/signin.ts) redirect with `?error=` query params for HTML flows. When adding **new** JSON endpoints, always use the structured shape above — do not mix `{ error: string }` in JSON responses.
+
+## Client handling
+
+React/Astro consumers parsing JSON errors should read `error.code`, `error.message`, and optional `error.context` — not treat `error` as a string.
+
+See @AGENTS.md for repo-wide rules.
