@@ -305,19 +305,19 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` completes without SQL errors
-- [x] 1.2 Three domain tables visible after reset
+- [x] 1.1 `npx supabase db reset` completes without SQL errors — a609e58
+- [x] 1.2 Three domain tables visible after reset — a609e58
 
 #### Manual
 
-- [x] 1.3 Migration fields cover FR-002/003/004/006 requirements
+- [x] 1.3 Migration fields cover FR-002/003/004/006 requirements — a609e58
 
 ### Phase 2: Row Level Security
 
 #### Automated
 
-- [ ] 2.1 RLS migration applies cleanly on db reset
-- [ ] 2.2 `verification.sql` smoke script passes locally
+- [x] 2.1 RLS migration applies cleanly on db reset
+- [x] 2.2 `verification.sql` smoke script passes locally
 
 #### Manual
 
