@@ -1,27 +1,102 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import { createClient } from "@/lib/supabase";
+import type { DashboardProfileSummary } from "@/types";
 
 const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let profile: DashboardProfileSummary | null = null;
+
+if (supabase && user) {
+  const { data } = await supabase
+    .from("decorator_profiles")
+    .select("id, company_name, is_published")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  profile = data;
+}
+
+const hasProfile = profile !== null;
+const isPublished = profile?.is_published ?? false;
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
+<DashboardLayout title="Dashboard">
+  <div class="space-y-6">
+    <div>
+      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+        Decorator panel
       </h1>
-      <p class="text-blue-100/80">
+      <p class="mt-2 text-blue-100/80">
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
       </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          Sign out
-        </button>
-      </form>
     </div>
+
+    {
+      !hasProfile && (
+        <section
+          class="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6 backdrop-blur-xl"
+          role="status"
+        >
+          <h2 class="text-lg font-semibold text-amber-100">Complete your profile</h2>
+          <p class="mt-2 text-sm text-amber-100/80">
+            Add your company details and publish your profile so clients can find you in search.
+          </p>
+          <a
+            href="/dashboard/profile"
+            class="mt-4 inline-flex rounded-lg bg-amber-400/20 px-4 py-2 text-sm font-medium text-amber-50 transition-colors hover:bg-amber-400/30"
+          >
+            Set up profile
+          </a>
+        </section>
+      )
+    }
+
+    {
+      hasProfile && !isPublished && (
+        <section class="rounded-2xl border border-blue-400/30 bg-blue-500/10 p-6 backdrop-blur-xl">
+          <h2 class="text-lg font-semibold text-blue-100">Profile draft</h2>
+          <p class="mt-2 text-sm text-blue-100/80">
+            <span class="font-medium text-white">{profile?.company_name}</span> is saved but not published
+            yet.
+          </p>
+          <a
+            href="/dashboard/profile"
+            class="mt-4 inline-flex rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Edit profile
+          </a>
+        </section>
+      )
+    }
+
+    {
+      hasProfile && isPublished && (
+        <section class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 backdrop-blur-xl">
+          <h2 class="text-lg font-semibold text-emerald-100">Profile published</h2>
+          <p class="mt-2 text-sm text-emerald-100/80">
+            <span class="font-medium text-white">{profile?.company_name}</span> is visible to clients.
+          </p>
+        </section>
+      )
+    }
+
+    <section class="grid gap-4 sm:grid-cols-2">
+      <a
+        href="/dashboard/profile"
+        class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl transition-colors hover:bg-white/15"
+      >
+        <h2 class="text-lg font-semibold text-white">Profile</h2>
+        <p class="mt-2 text-sm text-blue-100/70">Company info, contact details, and publish settings.</p>
+      </a>
+      <a
+        href="/dashboard/portfolio"
+        class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl transition-colors hover:bg-white/15"
+      >
+        <h2 class="text-lg font-semibold text-white">Portfolio</h2>
+        <p class="mt-2 text-sm text-blue-100/70">Showcase your event decorations with photos.</p>
+      </a>
+    </section>
   </div>
-</Layout>
+</DashboardLayout>
