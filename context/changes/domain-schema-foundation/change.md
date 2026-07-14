@@ -3,7 +3,7 @@ change_id: domain-schema-foundation
 title: Minimal domain schema for profiles, portfolio, and inquiries
 status: implementing
 created: 2026-06-20
-updated: 2026-06-20
+updated: 2026-07-08
 archived_at: null
 ---
 
