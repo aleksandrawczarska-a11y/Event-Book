@@ -414,25 +414,25 @@ Wire portfolio photo upload to F-01 `portfolio` storage bucket and complete end-
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes
-- [x] 1.2 `npm run build` passes
+- [x] 1.1 `npm run lint` passes — 7bd1b62
+- [x] 1.2 `npm run build` passes — 7bd1b62
 
 #### Manual
 
-- [x] 1.3 Dashboard hub shows Profile and Portfolio nav with completion CTA
+- [x] 1.3 Dashboard hub shows Profile and Portfolio nav with completion CTA — 7bd1b62
 
 ### Phase 2: Profile CRUD
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npm run build` passes
-- [ ] 2.3 Publish validation unit test passes
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npm run build` passes
+- [x] 2.3 Publish validation unit test passes
 
 #### Manual
 
-- [ ] 2.4 Profile create, edit, and publish validation work in UI
-- [ ] 2.5 Anon cannot read unpublished profile
+- [x] 2.4 Profile create, edit, and publish validation work in UI
+- [x] 2.5 Anon cannot read unpublished profile
 
 ### Phase 3: Profile photo storage
 
