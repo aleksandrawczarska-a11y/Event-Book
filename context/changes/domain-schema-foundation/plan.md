@@ -328,12 +328,12 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Automated
 
-- [ ] 3.1 Storage migration applies cleanly on db reset
+- [x] 3.1 Storage migration applies cleanly on db reset
 
 #### Manual
 
-- [ ] 3.2 Decorator upload scoped to own folder
-- [ ] 3.3 Cross-user storage delete blocked
+- [x] 3.2 Decorator upload scoped to own folder
+- [x] 3.3 Cross-user storage delete blocked
 
 ### Phase 4: Seed, docs, and remote apply
 
