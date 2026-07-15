@@ -28,7 +28,6 @@ export const profileBodySchema = z
     company_name: z.string().trim().min(1, "Company name is required"),
     city: z.string().trim().min(1, "City is required"),
     description: optionalText,
-    profile_photo_url: optionalText,
     instagram_url: optionalText,
     contact_email: optionalEmail,
     contact_phone: optionalText,

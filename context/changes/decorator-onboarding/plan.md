@@ -425,25 +425,25 @@ Wire portfolio photo upload to F-01 `portfolio` storage bucket and complete end-
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npm run build` passes
-- [x] 2.3 Publish validation unit test passes
+- [x] 2.1 `npm run lint` passes — e3cc7a7
+- [x] 2.2 `npm run build` passes — e3cc7a7
+- [x] 2.3 Publish validation unit test passes — e3cc7a7
 
 #### Manual
 
-- [x] 2.4 Profile create, edit, and publish validation work in UI
-- [x] 2.5 Anon cannot read unpublished profile
+- [x] 2.4 Profile create, edit, and publish validation work in UI — e3cc7a7
+- [x] 2.5 Anon cannot read unpublished profile — e3cc7a7
 
 ### Phase 3: Profile photo storage
 
 #### Automated
 
-- [ ] 3.1 `npx supabase db reset` applies profiles bucket migration
-- [ ] 3.2 `npm run lint` and `npm run build` pass
+- [x] 3.1 `npx supabase db reset` applies profiles bucket migration
+- [x] 3.2 `npm run lint` and `npm run build` pass
 
 #### Manual
 
-- [ ] 3.3 Avatar upload updates profile photo and blocks cross-user access
+- [x] 3.3 Avatar upload updates profile photo and blocks cross-user access
 
 ### Phase 4: Portfolio CRUD
 

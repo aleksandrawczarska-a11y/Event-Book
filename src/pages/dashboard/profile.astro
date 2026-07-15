@@ -2,6 +2,7 @@
 import DashboardLayout from "@/layouts/DashboardLayout.astro";
 import ProfileForm from "@/components/decorator/ProfileForm";
 import { DECORATION_STYLE_OPTIONS, EVENT_TYPE_OPTIONS } from "@/lib/decorator-taxonomy";
+import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
 import { createClient } from "@/lib/supabase";
 import type { DecoratorProfile } from "@/types";
 
@@ -11,13 +12,13 @@ let profile: DecoratorProfile | null = null;
 if (supabase) {
   const { user } = Astro.locals;
   if (user) {
-    const { data } = await supabase
-      .from("decorator_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data } = await supabase.from("decorator_profiles").select("*").eq("user_id", user.id).maybeSingle();
 
-    profile = data as DecoratorProfile | null;
+    if (data) {
+      const row = data as DecoratorProfile;
+      const displayUrl = await resolveProfilePhotoUrl(supabase, row.profile_photo_url);
+      profile = { ...row, profile_photo_url: displayUrl };
+    }
   }
 }
 ---

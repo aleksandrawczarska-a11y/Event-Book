@@ -3,6 +3,7 @@ import { Building2, Globe, Mail, MapPin, Phone, Save, User } from "lucide-react"
 
 import { ServerError } from "@/components/auth/ServerError";
 import { FormField } from "@/components/auth/FormField";
+import { ProfileAvatarUpload } from "@/components/decorator/ProfileAvatarUpload";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ApiErrorBody } from "@/lib/api-error";
@@ -46,6 +47,7 @@ function toggleValue(values: string[], value: string): string[] {
 
 export default function ProfileForm({ initialProfile, eventTypeOptions, decorationStyleOptions }: Props) {
   const [form, setForm] = useState<FormState>(() => toFormState(initialProfile));
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initialProfile?.profile_photo_url ?? null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -58,9 +60,7 @@ export default function ProfileForm({ initialProfile, eventTypeOptions, decorati
       if (!(key in prev)) {
         return prev;
       }
-      const next = { ...prev };
-      delete next[key];
-      return next;
+      return Object.fromEntries(Object.entries(prev).filter(([field]) => field !== key));
     });
     setSuccessMessage(null);
   }
@@ -84,9 +84,9 @@ export default function ProfileForm({ initialProfile, eventTypeOptions, decorati
 
       if (!response.ok) {
         const apiError = "error" in payload ? payload.error : null;
-        if (apiError?.code === "VALIDATION_FAILED" && apiError.context.fields) {
+        if (apiError?.code === "VALIDATION_FAILED") {
           const fields = apiError.context.fields;
-          if (typeof fields === "object" && fields !== null) {
+          if (fields && typeof fields === "object") {
             const nextErrors: Record<string, string> = {};
             for (const [key, message] of Object.entries(fields)) {
               if (typeof message === "string") {
@@ -114,6 +114,16 @@ export default function ProfileForm({ initialProfile, eventTypeOptions, decorati
 
   return (
     <div className="space-y-6">
+      <ProfileAvatarUpload
+        photoUrl={photoUrl}
+        disabled={!hasProfile}
+        onUploaded={(profile) => {
+          setPhotoUrl(profile.profile_photo_url);
+          setSuccessMessage("Profile photo updated.");
+          setServerError(null);
+        }}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           id="company_name"
@@ -242,9 +252,7 @@ export default function ProfileForm({ initialProfile, eventTypeOptions, decorati
             </label>
           ))}
         </div>
-        {fieldErrors.decoration_styles ? (
-          <p className="text-xs text-red-300">{fieldErrors.decoration_styles}</p>
-        ) : null}
+        {fieldErrors.decoration_styles ? <p className="text-xs text-red-300">{fieldErrors.decoration_styles}</p> : null}
       </fieldset>
 
       <label className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
@@ -259,8 +267,7 @@ export default function ProfileForm({ initialProfile, eventTypeOptions, decorati
         <span>
           <span className="block text-sm font-medium text-white">Publish profile</span>
           <span className="mt-1 block text-sm text-blue-100/70">
-            Requires company name, city, description, and contact email. Published profiles are visible to
-            clients.
+            Requires company name, city, description, and contact email. Published profiles are visible to clients.
           </span>
         </span>
       </label>
