@@ -438,23 +438,23 @@ Wire portfolio photo upload to F-01 `portfolio` storage bucket and complete end-
 
 #### Automated
 
-- [x] 3.1 `npx supabase db reset` applies profiles bucket migration
-- [x] 3.2 `npm run lint` and `npm run build` pass
+- [x] 3.1 `npx supabase db reset` applies profiles bucket migration — 98ccf11
+- [x] 3.2 `npm run lint` and `npm run build` pass — 98ccf11
 
 #### Manual
 
-- [x] 3.3 Avatar upload updates profile photo and blocks cross-user access
+- [x] 3.3 Avatar upload updates profile photo and blocks cross-user access — 98ccf11
 
 ### Phase 4: Portfolio CRUD
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` and `npm run build` pass
+- [x] 4.1 `npm run lint` and `npm run build` pass
 
 #### Manual
 
-- [ ] 4.2 Portfolio metadata create and delete work for profile owner
-- [ ] 4.3 Cross-decorator portfolio access blocked
+- [x] 4.2 Portfolio metadata create and delete work for profile owner
+- [x] 4.3 Cross-decorator portfolio access blocked
 
 ### Phase 5: Portfolio photo upload
 
