@@ -9,13 +9,13 @@ const { title } = Astro.props;
 const { user } = Astro.locals;
 const pathname = Astro.url.pathname;
 
-const navItems = [
+const navItems: { href: string; label: string; exact?: boolean }[] = [
   { href: "/dashboard", label: "Panel", exact: true },
   { href: "/dashboard/profile", label: "Profile" },
   { href: "/dashboard/portfolio", label: "Portfolio" },
-] as const;
+];
 
-function isActive(href: string, exact?: boolean): boolean {
+function isActive(href: string, exact = false): boolean {
   if (exact) {
     return pathname === href;
   }
@@ -38,11 +38,11 @@ function isActive(href: string, exact?: boolean): boolean {
                 href={item.href}
                 class:list={[
                   "rounded-lg px-3 py-2 text-sm transition-colors",
-                  isActive(item.href, item.exact)
+                  isActive(item.href, item.exact ?? false)
                     ? "bg-white/15 font-medium text-white"
                     : "text-blue-100/70 hover:bg-white/10 hover:text-white",
                 ]}
-                aria-current={isActive(item.href, item.exact) ? "page" : undefined}
+                aria-current={isActive(item.href, item.exact ?? false) ? "page" : undefined}
               >
                 {item.label}
               </a>

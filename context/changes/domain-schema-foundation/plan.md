@@ -321,8 +321,8 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Manual
 
-- [ ] 2.3 Anon cannot read unpublished profiles
-- [ ] 2.4 Cross-decorator inquiry isolation confirmed
+- [x] 2.3 Anon cannot read unpublished profiles � 881e3e3
+- [x] 2.4 Cross-decorator inquiry isolation confirmed � 881e3e3
 
 ### Phase 3: Storage bucket
 
@@ -339,10 +339,10 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` passes
-- [ ] 4.2 `npm run build` passes
+- [x] 4.1 `npm run lint` passes — 6db71a1
+- [x] 4.2 `npm run build` passes — 6db71a1
 
 #### Manual
 
-- [ ] 4.3 README migration docs updated
-- [ ] 4.4 Remote Supabase shows new tables after `db push`
+- [x] 4.3 README migration docs updated — 6db71a1
+- [x] 4.4 Remote Supabase shows new tables after `db push` — 6db71a1

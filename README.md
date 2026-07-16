@@ -72,7 +72,9 @@ npm run dev
 
 ## Supabase Configuration
 
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
+This project uses [Supabase](https://supabase.com/) for authentication and the EventBook domain schema (profiles, portfolio, inquiries). Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
+
+Domain schema plan: [`context/changes/domain-schema-foundation/plan-brief.md`](context/changes/domain-schema-foundation/plan-brief.md).
 
 ### First-time setup (local, no cloud project needed)
 
@@ -84,7 +86,7 @@ Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
 cp .env.example .env
 ```
 
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
+2. Initialize the local Supabase project (creates a `supabase/` config folder) if missing:
 
 ```bash
 npx supabase init
@@ -96,14 +98,22 @@ npx supabase init
 npx supabase start
 ```
 
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
+4. Apply migrations + seed comments (resets local DB):
+
+```bash
+npx supabase db reset
+```
+
+This applies SQL under `supabase/migrations/` (tables, RLS, `profiles` + `portfolio` storage buckets). `supabase/seed.sql` documents how to create profile rows after signup — it does not insert users.
+
+5. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
 
 ```
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_KEY=<anon key from CLI output>
 ```
 
-5. To stop the stack when done:
+6. To stop the stack when done:
 
 ```bash
 npx supabase stop
@@ -111,7 +121,19 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+### Migrations (local and remote)
+
+| Command                                 | When to use                                                   |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `npx supabase db reset`                 | Local: recreate DB from migrations + seed                     |
+| `npx supabase db push`                  | Remote: apply pending migrations to the linked hosted project |
+| `npx supabase link --project-ref <ref>` | One-time: link this repo to a hosted Supabase project         |
+
+Never commit service-role keys or `.env` / `.dev.vars`.
+
+### Admin role (FR-008 hook)
+
+Admin RLS uses JWT `app_metadata.role = 'admin'`. Assign it in the Supabase dashboard: **Authentication → Users → user → App Metadata**, e.g. `{ "role": "admin" }`. No admin UI ships in F-01.
 
 ### Using a cloud Supabase project instead
 
@@ -126,6 +148,15 @@ If you prefer to use a hosted Supabase project, add these variables to your `.en
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_KEY=<anon-key>
 ```
+
+Then link and push migrations:
+
+```bash
+npx supabase link --project-ref <project-ref>
+npx supabase db push
+```
+
+Confirm in the hosted **Table Editor** that `decorator_profiles`, `portfolio_entries`, and `contact_inquiries` exist.
 
 ### Email confirmation in local development
 
