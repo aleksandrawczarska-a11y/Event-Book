@@ -460,10 +460,10 @@ Wire portfolio photo upload to F-01 `portfolio` storage bucket and complete end-
 
 #### Automated
 
-- [x] 5.1 `npx supabase db reset` includes portfolio bucket (F-01 Phase 3)
-- [x] 5.2 `npm run lint` and `npm run build` pass
+- [x] 5.1 `npx supabase db reset` includes portfolio bucket (F-01 Phase 3) — 7db433f
+- [x] 5.2 `npm run lint` and `npm run build` pass — 7db433f
 
 #### Manual
 
-- [x] 5.3 Portfolio photo upload end-to-end works
-- [x] 5.4 Published profile and approved portfolio visible to anon
+- [x] 5.3 Portfolio photo upload end-to-end works — 7db433f
+- [x] 5.4 Published profile and approved portfolio visible to anon — 7db433f
