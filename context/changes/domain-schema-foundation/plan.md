@@ -321,8 +321,8 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Manual
 
-- [x] 2.3 Anon cannot read unpublished profiles
-- [x] 2.4 Cross-decorator inquiry isolation confirmed
+- [x] 2.3 Anon cannot read unpublished profiles — 881e3e3
+- [x] 2.4 Cross-decorator inquiry isolation confirmed — 881e3e3
 
 ### Phase 3: Storage bucket
 
