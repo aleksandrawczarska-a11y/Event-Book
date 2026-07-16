@@ -1,0 +1,26 @@
+-- EventBook local seed (F-01 Phase 4)
+--
+-- No stable auth.users UUIDs ship in git — create accounts via /auth/signup first,
+-- then insert domain rows manually (Studio SQL or psql).
+--
+-- After signup, copy the user id from Authentication → Users (or:
+--   select id, email from auth.users;
+-- ) and run variants of:
+--
+-- insert into public.decorator_profiles (
+--   user_id, company_name, city, description, contact_email, is_published
+-- ) values (
+--   '<user-uuid>',
+--   'Example Decor',
+--   'Warszawa',
+--   'Sample published profile for local discovery.',
+--   'decorator@example.com',
+--   true
+-- );
+--
+-- Portfolio photos belong in storage bucket `portfolio` under
+--   {user_id}/{entry_id}/{filename}
+-- then insert a matching portfolio_entries row with that storage_path.
+--
+-- Admin role (JWT app_metadata.role = 'admin') is set in the Auth dashboard
+-- (User → App Metadata), not via this seed file.

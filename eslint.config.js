@@ -12,6 +12,8 @@ import tseslint from "typescript-eslint";
 const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
 
 const baseConfig = tseslint.config({
+  // Keep projectService off *.astro — astro-eslint-parser does not support it.
+  files: ["**/*.{js,jsx,mjs,cjs,ts,tsx}"],
   extends: [eslint.configs.recommended, tseslint.configs.strictTypeChecked, tseslint.configs.stylisticTypeChecked],
   languageOptions: {
     parserOptions: {

@@ -1,4 +1,4 @@
-import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createServerClient, parseCookieHeader, type CookieMethodsServer } from "@supabase/ssr";
 import type { AstroCookies } from "astro";
 import { SUPABASE_URL, SUPABASE_KEY } from "astro:env/server";
 
@@ -15,22 +15,27 @@ export function isSupabaseConfigured(url: string | undefined, key: string | unde
 }
 
 export function createClient(requestHeaders: Headers, cookies: AstroCookies) {
-  if (!isSupabaseConfigured(SUPABASE_URL, SUPABASE_KEY)) {
+  const url = SUPABASE_URL;
+  const key = SUPABASE_KEY;
+  if (!isSupabaseConfigured(url, key) || !url || !key) {
     return null;
   }
-  return createServerClient(SUPABASE_URL, SUPABASE_KEY, {
-    cookies: {
-      getAll() {
-        return parseCookieHeader(requestHeaders.get("Cookie") ?? "").map(({ name, value }) => ({
-          name,
-          value: value ?? "",
-        }));
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookies.set(name, value, options);
-        });
-      },
+
+  const cookieMethods: CookieMethodsServer = {
+    getAll() {
+      return parseCookieHeader(requestHeaders.get("Cookie") ?? "").map(({ name, value }) => ({
+        name,
+        value: value ?? "",
+      }));
     },
+    setAll(cookiesToSet, _headers) {
+      for (const { name, value, options } of cookiesToSet) {
+        cookies.set(name, value, options);
+      }
+    },
+  };
+
+  return createServerClient(url, key, {
+    cookies: cookieMethods,
   });
 }

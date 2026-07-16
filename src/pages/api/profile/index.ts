@@ -19,21 +19,22 @@ export const GET: APIRoute = async (context) => {
     return auth.error;
   }
 
-  const { data, error } = await auth.supabase
+  const profileResult = await auth.supabase
     .from("decorator_profiles")
     .select("*")
     .eq("user_id", auth.user.id)
     .maybeSingle();
 
-  if (error) {
+  if (profileResult.error) {
     return jsonError("PROFILE_FETCH_FAILED", "Failed to load profile", 500);
   }
 
-  if (!data) {
+  const profile = profileResult.data as DecoratorProfile | null;
+  if (!profile) {
     return jsonError("PROFILE_NOT_FOUND", "Profile not found", 404);
   }
 
-  return Response.json({ profile: data as DecoratorProfile });
+  return Response.json({ profile });
 };
 
 export const POST: APIRoute = async (context) => {
@@ -54,27 +55,27 @@ export const POST: APIRoute = async (context) => {
     return validationFailed(parsed.error.issues);
   }
 
-  const { data: existing } = await auth.supabase
+  const existingResult = await auth.supabase
     .from("decorator_profiles")
     .select("id")
     .eq("user_id", auth.user.id)
     .maybeSingle();
 
-  if (existing) {
+  if (existingResult.data) {
     return jsonError("PROFILE_ALREADY_EXISTS", "Profile already exists; use PUT to update", 409);
   }
 
-  const { data, error } = await auth.supabase
+  const insertResult = await auth.supabase
     .from("decorator_profiles")
     .insert({ ...parsed.data, user_id: auth.user.id })
     .select("*")
     .single();
 
-  if (error) {
+  if (insertResult.error) {
     return jsonError("PROFILE_CREATE_FAILED", "Failed to create profile", 500);
   }
 
-  return Response.json({ profile: data as DecoratorProfile }, { status: 201 });
+  return Response.json({ profile: insertResult.data as DecoratorProfile }, { status: 201 });
 };
 
 export const PUT: APIRoute = async (context) => {
@@ -95,20 +96,21 @@ export const PUT: APIRoute = async (context) => {
     return validationFailed(parsed.error.issues);
   }
 
-  const { data, error } = await auth.supabase
+  const updateResult = await auth.supabase
     .from("decorator_profiles")
     .update(parsed.data)
     .eq("user_id", auth.user.id)
     .select("*")
     .maybeSingle();
 
-  if (error) {
+  if (updateResult.error) {
     return jsonError("PROFILE_UPDATE_FAILED", "Failed to update profile", 500);
   }
 
-  if (!data) {
+  const profile = updateResult.data as DecoratorProfile | null;
+  if (!profile) {
     return jsonError("PROFILE_NOT_FOUND", "Profile not found", 404);
   }
 
-  return Response.json({ profile: data as DecoratorProfile });
+  return Response.json({ profile });
 };
