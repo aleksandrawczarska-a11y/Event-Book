@@ -339,10 +339,10 @@ Dev seed data, README update, remote migration push, and handoff to S-01.
 
 #### Automated
 
-- [x] 4.1 `npm run lint` passes
-- [x] 4.2 `npm run build` passes
+- [x] 4.1 `npm run lint` passes — 6db71a1
+- [x] 4.2 `npm run build` passes — 6db71a1
 
 #### Manual
 
-- [x] 4.3 README migration docs updated
-- [x] 4.4 Remote Supabase shows new tables after `db push`
+- [x] 4.3 README migration docs updated — 6db71a1
+- [x] 4.4 Remote Supabase shows new tables after `db push` — 6db71a1
