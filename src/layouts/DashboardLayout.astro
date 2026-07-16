@@ -1,0 +1,66 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const { user } = Astro.locals;
+const pathname = Astro.url.pathname;
+
+const navItems = [
+  { href: "/dashboard", label: "Panel", exact: true },
+  { href: "/dashboard/profile", label: "Profile" },
+  { href: "/dashboard/portfolio", label: "Portfolio" },
+] as const;
+
+function isActive(href: string, exact?: boolean): boolean {
+  if (exact) {
+    return pathname === href;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+---
+
+<Layout title={title}>
+  <div class="bg-cosmic min-h-screen text-white">
+    <header class="border-b border-white/10 bg-white/5 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+        <div>
+          <p class="text-xs font-medium tracking-wide text-blue-100/50 uppercase">EventBook</p>
+          <p class="text-sm text-blue-100/80">{user?.email}</p>
+        </div>
+        <nav class="flex flex-wrap items-center gap-2" aria-label="Decorator panel">
+          {
+            navItems.map((item) => (
+              <a
+                href={item.href}
+                class:list={[
+                  "rounded-lg px-3 py-2 text-sm transition-colors",
+                  isActive(item.href, item.exact)
+                    ? "bg-white/15 font-medium text-white"
+                    : "text-blue-100/70 hover:bg-white/10 hover:text-white",
+                ]}
+                aria-current={isActive(item.href, item.exact) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <form method="POST" action="/api/auth/signout">
+          <button
+            type="submit"
+            class="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
+    </header>
+    <main class="mx-auto max-w-5xl px-4 py-8">
+      <slot />
+    </main>
+  </div>
+</Layout>
