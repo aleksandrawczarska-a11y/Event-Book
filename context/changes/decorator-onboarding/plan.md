@@ -283,6 +283,8 @@ Portfolio list and metadata management at `/dashboard/portfolio` — create and 
 
 **Contract**: Fetch API; confirm before delete.
 
+**Implementation note (impl-review)**: Shipped as `PortfolioPanel.tsx` (list + form + delete) instead of a separate `PortfolioList.tsx`.
+
 **File**: `src/components/decorator/PortfolioEntryForm.tsx`
 
 **Intent**: Form for optional metadata fields (`event_description`, `decoration_style`, `location`, `tags`); photo input present but disabled or labeled "available after storage setup" until Phase 5 if F-01 Phase 3 not done.

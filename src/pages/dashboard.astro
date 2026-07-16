@@ -35,10 +35,7 @@ const isPublished = profile?.is_published ?? false;
 
     {
       !hasProfile && (
-        <section
-          class="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6 backdrop-blur-xl"
-          role="status"
-        >
+        <section class="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6 backdrop-blur-xl" role="status">
           <h2 class="text-lg font-semibold text-amber-100">Complete your profile</h2>
           <p class="mt-2 text-sm text-amber-100/80">
             Add your company details and publish your profile so clients can find you in search.
@@ -58,8 +55,7 @@ const isPublished = profile?.is_published ?? false;
         <section class="rounded-2xl border border-blue-400/30 bg-blue-500/10 p-6 backdrop-blur-xl">
           <h2 class="text-lg font-semibold text-blue-100">Profile draft</h2>
           <p class="mt-2 text-sm text-blue-100/80">
-            <span class="font-medium text-white">{profile?.company_name}</span> is saved but not published
-            yet.
+            <span class="font-medium text-white">{profile?.company_name}</span> is saved but not published yet.
           </p>
           <a
             href="/dashboard/profile"

@@ -1,8 +1,8 @@
 import type { APIRoute } from "astro";
 
+import { requireAuth } from "@/lib/api-auth";
 import { jsonError } from "@/lib/api-error";
 import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
-import { createClient } from "@/lib/supabase";
 import type { DecoratorProfile } from "@/types";
 
 export const prerender = false;
@@ -15,24 +15,15 @@ const ALLOWED_MIME = new Map<string, string>([
 ]);
 
 export const POST: APIRoute = async (context) => {
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return jsonError("SUPABASE_NOT_CONFIGURED", "Supabase is not configured", 503);
+  const auth = await requireAuth(context);
+  if ("error" in auth) {
+    return auth.error;
   }
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return jsonError("AUTH_REQUIRED", "Authentication required", 401);
-  }
-
-  const { data: existingProfile, error: profileLookupError } = await supabase
+  const { data: existingProfile, error: profileLookupError } = await auth.supabase
     .from("decorator_profiles")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", auth.user.id)
     .maybeSingle();
 
   if (profileLookupError) {
@@ -70,40 +61,49 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
-  const objectPath = `${user.id}/avatar.${extension}`;
+  const objectPath = `${auth.user.id}/avatar.${extension}`;
   const bytes = new Uint8Array(await file.arrayBuffer());
 
-  const { error: uploadError } = await supabase.storage.from("profiles").upload(objectPath, bytes, {
+  const { error: uploadError } = await auth.supabase.storage.from("profiles").upload(objectPath, bytes, {
     contentType: file.type,
     upsert: true,
   });
 
   if (uploadError) {
-    return jsonError("AVATAR_UPLOAD_FAILED", "Failed to upload avatar", 500, {
-      detail: uploadError.message,
-    });
+    return jsonError("AVATAR_UPLOAD_FAILED", "Failed to upload avatar", 500);
   }
 
-  const updateResult = await supabase
+  const updateResult = await auth.supabase
     .from("decorator_profiles")
     .update({ profile_photo_url: objectPath })
-    .eq("user_id", user.id)
+    .eq("user_id", auth.user.id)
     .select("*")
     .maybeSingle();
 
   if (updateResult.error) {
-    return jsonError("PROFILE_UPDATE_FAILED", "Failed to update profile photo URL", 500, {
-      detail: updateResult.error.message,
-    });
+    await auth.supabase.storage.from("profiles").remove([objectPath]);
+    return jsonError("PROFILE_UPDATE_FAILED", "Failed to update profile photo URL", 500);
   }
 
   const profile = updateResult.data as DecoratorProfile | null;
 
   if (!profile) {
+    await auth.supabase.storage.from("profiles").remove([objectPath]);
     return jsonError("PROFILE_NOT_FOUND", "Profile not found", 404);
   }
 
-  const displayUrl = await resolveProfilePhotoUrl(supabase, profile.profile_photo_url);
+  const { data: siblings } = await auth.supabase.storage.from("profiles").list(auth.user.id, {
+    search: "avatar.",
+  });
+  const stalePaths = (siblings ?? [])
+    .map((item) => item.name)
+    .filter((name) => name.startsWith("avatar.") && name !== `avatar.${extension}`)
+    .map((name) => `${auth.user.id}/${name}`);
+  if (stalePaths.length > 0) {
+    await auth.supabase.storage.from("profiles").remove(stalePaths);
+  }
+
+  const displayUrl = await resolveProfilePhotoUrl(auth.supabase, profile.profile_photo_url);
 
   return Response.json({
     profile: {

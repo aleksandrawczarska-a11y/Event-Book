@@ -29,9 +29,7 @@ export const DELETE: APIRoute = async (context) => {
     .maybeSingle();
 
   if (existing.error) {
-    return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500, {
-      detail: existing.error.message,
-    });
+    return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500);
   }
 
   if (!existing.data) {
@@ -47,9 +45,7 @@ export const DELETE: APIRoute = async (context) => {
     .eq("decorator_profile_id", profile.profileId);
 
   if (error) {
-    return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500, {
-      detail: error.message,
-    });
+    return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500);
   }
 
   if (storagePath && !storagePath.startsWith("pending/")) {

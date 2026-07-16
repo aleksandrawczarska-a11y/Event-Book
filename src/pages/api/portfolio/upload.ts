@@ -94,9 +94,7 @@ export const POST: APIRoute = async (context) => {
   });
 
   if (uploadError) {
-    return jsonError("PORTFOLIO_UPLOAD_FAILED", "Failed to upload portfolio photo", 500, {
-      detail: uploadError.message,
-    });
+    return jsonError("PORTFOLIO_UPLOAD_FAILED", "Failed to upload portfolio photo", 500);
   }
 
   const insertResult = await auth.supabase
@@ -115,9 +113,7 @@ export const POST: APIRoute = async (context) => {
 
   if (insertResult.error) {
     await auth.supabase.storage.from("portfolio").remove([objectPath]);
-    return jsonError("PORTFOLIO_CREATE_FAILED", "Failed to create portfolio entry", 500, {
-      detail: insertResult.error.message,
-    });
+    return jsonError("PORTFOLIO_CREATE_FAILED", "Failed to create portfolio entry", 500);
   }
 
   const entry = insertResult.data as PortfolioEntry;

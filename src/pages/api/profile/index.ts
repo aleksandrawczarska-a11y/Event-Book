@@ -1,29 +1,11 @@
 import type { APIRoute } from "astro";
 
+import { requireAuth } from "@/lib/api-auth";
 import { jsonError } from "@/lib/api-error";
 import { parseProfileBody } from "@/lib/profile-schema";
-import { createClient } from "@/lib/supabase";
 import type { DecoratorProfile } from "@/types";
 
 export const prerender = false;
-
-async function getAuthenticatedClient(context: Parameters<APIRoute>[0]) {
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return { error: jsonError("SUPABASE_NOT_CONFIGURED", "Supabase is not configured", 503) } as const;
-  }
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: jsonError("AUTH_REQUIRED", "Authentication required", 401) } as const;
-  }
-
-  return { supabase, user } as const;
-}
 
 function validationFailed(issues: { path: (string | number)[]; message: string }[]) {
   return jsonError("VALIDATION_FAILED", "Invalid profile data", 400, {
@@ -32,7 +14,7 @@ function validationFailed(issues: { path: (string | number)[]; message: string }
 }
 
 export const GET: APIRoute = async (context) => {
-  const auth = await getAuthenticatedClient(context);
+  const auth = await requireAuth(context);
   if ("error" in auth) {
     return auth.error;
   }
@@ -55,7 +37,7 @@ export const GET: APIRoute = async (context) => {
 };
 
 export const POST: APIRoute = async (context) => {
-  const auth = await getAuthenticatedClient(context);
+  const auth = await requireAuth(context);
   if ("error" in auth) {
     return auth.error;
   }
@@ -89,14 +71,14 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (error) {
-    return jsonError("PROFILE_CREATE_FAILED", "Failed to create profile", 500, { detail: error.message });
+    return jsonError("PROFILE_CREATE_FAILED", "Failed to create profile", 500);
   }
 
   return Response.json({ profile: data as DecoratorProfile }, { status: 201 });
 };
 
 export const PUT: APIRoute = async (context) => {
-  const auth = await getAuthenticatedClient(context);
+  const auth = await requireAuth(context);
   if ("error" in auth) {
     return auth.error;
   }
@@ -121,7 +103,7 @@ export const PUT: APIRoute = async (context) => {
     .maybeSingle();
 
   if (error) {
-    return jsonError("PROFILE_UPDATE_FAILED", "Failed to update profile", 500, { detail: error.message });
+    return jsonError("PROFILE_UPDATE_FAILED", "Failed to update profile", 500);
   }
 
   if (!data) {

@@ -22,12 +22,11 @@ export const GET: APIRoute = async (context) => {
     .from("portfolio_entries")
     .select("*")
     .eq("decorator_profile_id", profile.profileId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   if (error) {
-    return jsonError("PORTFOLIO_FETCH_FAILED", "Failed to load portfolio entries", 500, {
-      detail: error.message,
-    });
+    return jsonError("PORTFOLIO_FETCH_FAILED", "Failed to load portfolio entries", 500);
   }
 
   return Response.json({ entries: data as PortfolioEntry[] });
@@ -58,9 +57,18 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
+  const storagePath = parsed.data.storage_path;
+  const userPrefix = `${auth.user.id}/`;
+  if (storagePath.startsWith("pending/") || !storagePath.startsWith(userPrefix)) {
+    return jsonError(
+      "VALIDATION_FAILED",
+      "storage_path must be an uploaded object under your user folder; use POST /api/portfolio/upload for new entries",
+      400,
+      { fields: { storage_path: "Must start with your user id and must not use pending/ placeholders" } },
+    );
+  }
+
   const entryId = crypto.randomUUID();
-  // Phase 4 placeholder — Phase 5 replaces this with a real storage object path.
-  const storagePath = `pending/${auth.user.id}/${entryId}`;
 
   const insertResult = await auth.supabase
     .from("portfolio_entries")
@@ -77,9 +85,7 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (insertResult.error) {
-    return jsonError("PORTFOLIO_CREATE_FAILED", "Failed to create portfolio entry", 500, {
-      detail: insertResult.error.message,
-    });
+    return jsonError("PORTFOLIO_CREATE_FAILED", "Failed to create portfolio entry", 500);
   }
 
   return Response.json({ entry: insertResult.data as PortfolioEntry }, { status: 201 });

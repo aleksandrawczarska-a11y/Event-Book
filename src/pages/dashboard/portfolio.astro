@@ -9,7 +9,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 
 let hasProfile = false;
-let entries: Array<PortfolioEntry & { image_url: string | null }> = [];
+let entries: (PortfolioEntry & { image_url: string | null })[] = [];
 
 if (supabase && user) {
   const { data: profile } = await supabase.from("decorator_profiles").select("id").eq("user_id", user.id).maybeSingle();
@@ -20,7 +20,8 @@ if (supabase && user) {
       .from("portfolio_entries")
       .select("*")
       .eq("decorator_profile_id", profile.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     entries = await resolvePortfolioEntriesImages(supabase, (data ?? []) as PortfolioEntry[]);
   }

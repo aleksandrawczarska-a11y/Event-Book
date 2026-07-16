@@ -8,6 +8,7 @@ const optionalText = z
   .transform((value) => (value === "" ? null : (value ?? null)));
 
 export const portfolioEntryBodySchema = z.object({
+  storage_path: z.string().trim().min(1),
   event_description: optionalText,
   decoration_style: optionalText,
   location: optionalText,
