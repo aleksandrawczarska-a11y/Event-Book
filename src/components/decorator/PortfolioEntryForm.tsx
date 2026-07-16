@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { MapPin, Palette, Plus, Save, Tag, Text } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Camera, MapPin, Palette, Plus, Save, Tag, Text } from "lucide-react";
 
 import { ServerError } from "@/components/auth/ServerError";
 import { FormField } from "@/components/auth/FormField";
@@ -7,41 +7,93 @@ import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
 import type { PortfolioEntry } from "@/types";
 
+export type PortfolioEntryView = PortfolioEntry & { image_url: string | null };
+
 interface Props {
-  onCreated: (entry: PortfolioEntry) => void;
+  onCreated: (entry: PortfolioEntryView) => void;
 }
 
+const MAX_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
 export function PortfolioEntryForm({ onCreated }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [eventDescription, setEventDescription] = useState("");
   const [decorationStyle, setDecorationStyle] = useState("");
   const [location, setLocation] = useState("");
   const [tagsInput, setTagsInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  function clearFile() {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  function handleFileChange(next: File | undefined) {
+    setServerError(null);
+    if (!next) {
+      clearFile();
+      return;
+    }
+
+    if (!ALLOWED_TYPES.has(next.type)) {
+      setServerError("Only JPEG, PNG, and WebP images are allowed");
+      clearFile();
+      return;
+    }
+
+    if (next.size > MAX_BYTES) {
+      setServerError("Image must be 5 MB or smaller");
+      clearFile();
+      return;
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setFile(next);
+    setPreviewUrl(URL.createObjectURL(next));
+  }
+
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSaving(true);
     setServerError(null);
+
+    if (!file) {
+      setServerError("Photo is required");
+      return;
+    }
+
+    setIsSaving(true);
 
     const tags = tagsInput
       .split(",")
       .map((tag) => tag.trim())
       .filter(Boolean);
 
+    const body = new FormData();
+    body.append("file", file);
+    body.append("event_description", eventDescription);
+    body.append("decoration_style", decorationStyle);
+    body.append("location", location);
+    body.append("tags", JSON.stringify(tags));
+
     try {
-      const response = await fetch("/api/portfolio", {
+      const response = await fetch("/api/portfolio/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event_description: eventDescription,
-          decoration_style: decorationStyle,
-          location,
-          tags,
-        }),
+        body,
       });
 
-      const payload = (await response.json()) as { entry?: PortfolioEntry } | ApiErrorBody;
+      const payload = (await response.json()) as { entry?: PortfolioEntryView } | ApiErrorBody;
 
       if (!response.ok) {
         setServerError("error" in payload ? payload.error.message : "Failed to create entry");
@@ -54,6 +106,7 @@ export function PortfolioEntryForm({ onCreated }: Props) {
         setDecorationStyle("");
         setLocation("");
         setTagsInput("");
+        clearFile();
       }
     } catch {
       setServerError("Failed to create entry");
@@ -69,9 +122,39 @@ export function PortfolioEntryForm({ onCreated }: Props) {
         <h2 className="text-lg font-semibold text-white">Add portfolio entry</h2>
       </div>
 
-      <p className="rounded-lg border border-blue-400/20 bg-blue-500/10 px-3 py-2 text-xs text-blue-100/80">
-        Photo upload comes in the next step. You can add description and tags now.
-      </p>
+      <div className="space-y-2">
+        <p className="text-sm text-blue-100/80">Photo (required)</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/20 bg-white/10">
+            {previewUrl ? (
+              <img src={previewUrl} alt="Selected portfolio photo" className="size-full object-cover" />
+            ) : (
+              <Camera className="size-8 text-white/40" />
+            )}
+          </div>
+          <div className="space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(event) => {
+                handleFileChange(event.target.files?.[0]);
+              }}
+            />
+            <Button
+              type="button"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
+            >
+              {file ? "Change photo" : "Choose photo"}
+            </Button>
+            <p className="text-xs text-blue-100/60">JPEG, PNG, or WebP up to 5 MB.</p>
+          </div>
+        </div>
+      </div>
 
       <FormField
         id="event_description"
@@ -118,7 +201,7 @@ export function PortfolioEntryForm({ onCreated }: Props) {
         className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-500"
       >
         {isSaving ? (
-          "Saving..."
+          "Uploading..."
         ) : (
           <span className="flex items-center gap-2">
             <Save className="size-4" />

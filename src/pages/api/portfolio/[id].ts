@@ -21,13 +21,30 @@ export const DELETE: APIRoute = async (context) => {
     return jsonError("VALIDATION_FAILED", "Portfolio entry id is required", 400);
   }
 
-  const { data, error } = await auth.supabase
+  const existing = await auth.supabase
+    .from("portfolio_entries")
+    .select("id, storage_path")
+    .eq("id", id)
+    .eq("decorator_profile_id", profile.profileId)
+    .maybeSingle();
+
+  if (existing.error) {
+    return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500, {
+      detail: existing.error.message,
+    });
+  }
+
+  if (!existing.data) {
+    return jsonError("PORTFOLIO_NOT_FOUND", "Portfolio entry not found", 404);
+  }
+
+  const storagePath = existing.data.storage_path as string;
+
+  const { error } = await auth.supabase
     .from("portfolio_entries")
     .delete()
     .eq("id", id)
-    .eq("decorator_profile_id", profile.profileId)
-    .select("id")
-    .maybeSingle();
+    .eq("decorator_profile_id", profile.profileId);
 
   if (error) {
     return jsonError("PORTFOLIO_DELETE_FAILED", "Failed to delete portfolio entry", 500, {
@@ -35,8 +52,8 @@ export const DELETE: APIRoute = async (context) => {
     });
   }
 
-  if (!data) {
-    return jsonError("PORTFOLIO_NOT_FOUND", "Portfolio entry not found", 404);
+  if (storagePath && !storagePath.startsWith("pending/")) {
+    await auth.supabase.storage.from("portfolio").remove([storagePath]);
   }
 
   return Response.json({ ok: true });

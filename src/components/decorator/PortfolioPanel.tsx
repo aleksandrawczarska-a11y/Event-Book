@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { ImageOff, Trash2 } from "lucide-react";
 
 import { ServerError } from "@/components/auth/ServerError";
-import { PortfolioEntryForm } from "@/components/decorator/PortfolioEntryForm";
+import { PortfolioEntryForm, type PortfolioEntryView } from "@/components/decorator/PortfolioEntryForm";
 import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
-import type { PortfolioEntry } from "@/types";
 
 interface Props {
-  initialEntries: PortfolioEntry[];
+  initialEntries: PortfolioEntryView[];
 }
 
 export default function PortfolioPanel({ initialEntries }: Props) {
@@ -57,8 +56,16 @@ export default function PortfolioPanel({ initialEntries }: Props) {
               className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 sm:flex-row sm:items-start sm:justify-between"
             >
               <div className="flex gap-3">
-                <div className="flex size-16 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/10">
-                  <ImageOff className="size-5 text-white/40" />
+                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/10">
+                  {entry.image_url ? (
+                    <img
+                      src={entry.image_url}
+                      alt={entry.event_description ?? "Portfolio photo"}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <ImageOff className="size-5 text-white/40" />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <p className="font-medium text-white">{entry.event_description ?? "Untitled realization"}</p>

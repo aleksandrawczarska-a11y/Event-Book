@@ -1,6 +1,7 @@
 ---
 import DashboardLayout from "@/layouts/DashboardLayout.astro";
 import PortfolioPanel from "@/components/decorator/PortfolioPanel";
+import { resolvePortfolioEntriesImages } from "@/lib/storage-url";
 import { createClient } from "@/lib/supabase";
 import type { PortfolioEntry } from "@/types";
 
@@ -8,7 +9,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 
 let hasProfile = false;
-let entries: PortfolioEntry[] = [];
+let entries: Array<PortfolioEntry & { image_url: string | null }> = [];
 
 if (supabase && user) {
   const { data: profile } = await supabase.from("decorator_profiles").select("id").eq("user_id", user.id).maybeSingle();
@@ -21,7 +22,7 @@ if (supabase && user) {
       .eq("decorator_profile_id", profile.id)
       .order("created_at", { ascending: false });
 
-    entries = (data ?? []) as PortfolioEntry[];
+    entries = await resolvePortfolioEntriesImages(supabase, (data ?? []) as PortfolioEntry[]);
   }
 }
 ---
@@ -32,7 +33,7 @@ if (supabase && user) {
       <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
         Portfolio
       </h1>
-      <p class="mt-2 text-sm text-blue-100/70">Showcase your event decorations. Photos come next.</p>
+      <p class="mt-2 text-sm text-blue-100/70">Showcase your event decorations with photos.</p>
       <a href="/dashboard" class="mt-2 inline-block text-sm text-purple-300 hover:underline">Back to panel</a>
     </div>
 
@@ -51,7 +52,7 @@ if (supabase && user) {
           </a>
         </section>
       ) : (
-        <PortfolioPanel initialEntries={entries} client:load />
+        <PortfolioPanel initialEntries={entries} client:only="react" />
       )
     }
   </div>

@@ -449,21 +449,21 @@ Wire portfolio photo upload to F-01 `portfolio` storage bucket and complete end-
 
 #### Automated
 
-- [x] 4.1 `npm run lint` and `npm run build` pass
+- [x] 4.1 `npm run lint` and `npm run build` pass — d5a1c26
 
 #### Manual
 
-- [x] 4.2 Portfolio metadata create and delete work for profile owner
-- [x] 4.3 Cross-decorator portfolio access blocked
+- [x] 4.2 Portfolio metadata create and delete work for profile owner — d5a1c26
+- [x] 4.3 Cross-decorator portfolio access blocked — d5a1c26
 
 ### Phase 5: Portfolio photo upload
 
 #### Automated
 
-- [ ] 5.1 `npx supabase db reset` includes portfolio bucket (F-01 Phase 3)
-- [ ] 5.2 `npm run lint` and `npm run build` pass
+- [x] 5.1 `npx supabase db reset` includes portfolio bucket (F-01 Phase 3)
+- [x] 5.2 `npm run lint` and `npm run build` pass
 
 #### Manual
 
-- [ ] 5.3 Portfolio photo upload end-to-end works
-- [ ] 5.4 Published profile and approved portfolio visible to anon
+- [x] 5.3 Portfolio photo upload end-to-end works
+- [x] 5.4 Published profile and approved portfolio visible to anon
