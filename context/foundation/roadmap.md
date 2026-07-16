@@ -3,7 +3,7 @@ project: EventBook
 version: 1
 status: draft
 created: 2026-05-29
-updated: 2026-05-29
+updated: 2026-07-17
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -29,8 +29,8 @@ Dekoratorzy eventowi pozyskują klientów chaotycznie przez social media; organi
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | domain-schema-foundation | (foundation) minimalny schemat domenowy dla profili, portfolio i zapytań jest dostępny w bazie | — | Business Logic, Access Control | ready |
-| S-01 | decorator-onboarding | dekorator can register, log in, create a public profile, and add portfolio entries with photos | F-01 | FR-001, FR-002, FR-003 | proposed |
+| F-01 | domain-schema-foundation | (foundation) minimalny schemat domenowy dla profili, portfolio i zapytań jest dostępny w bazie | — | Business Logic, Access Control | done |
+| S-01 | decorator-onboarding | dekorator can register, log in, create a public profile, and add portfolio entries with photos | F-01 | FR-001, FR-002, FR-003 | done |
 | S-02 | client-discovery | anonimowy klient can search and filter decorators and view a public profile with portfolio gallery | S-01, F-01 | FR-004, FR-005 | proposed |
 | S-03 | contact-lead-flow | klient can submit a contact inquiry; dekorator receives it by email and sees it in the panel | S-02 | US-01, FR-006, FR-007 | proposed |
 | S-04 | admin-moderation | administrator can manually moderate portfolio content | S-01 | FR-008 | proposed |
@@ -60,7 +60,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Data layer jest partial w baseline — bez tego enablera żaden slice domenowy nie da się zaplanować end-to-end; utrzymany minimalny zakres, żeby nie budować całej warstwy danych z wyprzedzeniem.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -75,7 +75,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Jakie minimalne pola profilu wymagamy przy pierwszym publikowaniu? — Owner: user. Block: no.
 - **Risk:** Strona podaży musi istnieć przed discovery klienta; auth jest już w baseline, więc slice integruje istniejący auth z nowym schematem z F-01.
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Discovery klienta
 
@@ -121,8 +121,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | domain-schema-foundation | EventBook: minimal domain schema for profiles, portfolio, inquiries | yes | Run `/10x-plan domain-schema-foundation` |
-| S-01 | decorator-onboarding | EventBook: decorator registration, profile, and portfolio | no | After F-01 |
+| F-01 | domain-schema-foundation | EventBook: minimal domain schema for profiles, portfolio, inquiries | — | done (`implemented`) |
+| S-01 | decorator-onboarding | EventBook: decorator registration, profile, and portfolio | — | done (`impl_reviewed`) |
 | S-02 | client-discovery | EventBook: client search, filters, and public profile view | no | After S-01 |
 | S-03 | contact-lead-flow | EventBook: contact form and decorator inquiry panel | no | North star; after S-02 |
 | S-04 | admin-moderation | EventBook: admin manual portfolio moderation | no | After S-01; can parallel S-02/S-03 |
@@ -147,3 +147,6 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **CI auto-deploy na Cloudflare** — Why parked: cel speed; deploy manualny/Wrangler wystarczy na MVP; infra baseline partial, nie blokuje slice'ów produktowych.
 
 ## Done
+
+- **F-01: (foundation) minimalny schemat domenowy dla profili, portfolio i zapytań jest dostępny w bazie** — Implemented 2026-07-17 → `context/changes/domain-schema-foundation/` (`implemented`). Lesson: —.
+- **S-01: dekorator can register, log in, create and edit a public profile, and add portfolio entries with photos** — Implemented 2026-07-16 → `context/changes/decorator-onboarding/` (`impl_reviewed`). Lesson: —.
