@@ -15,9 +15,13 @@ export default defineConfig({
     resolve: {
       dedupe: ["react", "react-dom"],
     },
+    optimizeDeps: {
+      exclude: ["astro:env", "astro:env/server", "astro:env/client"],
+    },
     ssr: {
       optimizeDeps: {
         include: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+        exclude: ["astro:env", "astro:env/server", "astro:env/client"],
       },
     },
   },

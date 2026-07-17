@@ -1,0 +1,210 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { createClient } from "@/lib/supabase";
+import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
+import {
+  buildDiscoverySearchHref,
+  discoveryEventOptions,
+  discoveryStyleOptions,
+  fetchPublishedDecorators,
+  parseDiscoverySearchParams,
+  type DiscoveryResult,
+} from "@/lib/discovery-query";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const filters = parseDiscoverySearchParams(Astro.url.searchParams);
+
+let result: DiscoveryResult | null = null;
+let loadError: string | null = null;
+
+if (supabase) {
+  try {
+    result = await fetchPublishedDecorators(supabase, filters);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Failed to load decorators";
+  }
+} else {
+  loadError = "Supabase is not configured";
+}
+
+const profilesWithPhotos = result
+  ? await Promise.all(
+      result.profiles.map(async (profile) => ({
+        ...profile,
+        avatar_url: supabase ? await resolveProfilePhotoUrl(supabase, profile.profile_photo_url) : null,
+      })),
+    )
+  : [];
+
+const currentFilters = result?.filters ?? filters;
+const prevHref =
+  result && result.page > 1 ? buildDiscoverySearchHref({ ...currentFilters, page: result.page - 1 }) : null;
+const nextHref =
+  result && result.page < result.totalPages
+    ? buildDiscoverySearchHref({ ...currentFilters, page: result.page + 1 })
+    : null;
+---
+
+<Layout title="Search decorators — EventBook">
+  <div class="bg-cosmic min-h-screen text-white">
+    <div class="mx-auto max-w-5xl px-4 py-6 sm:px-8">
+      <Topbar />
+
+      <header class="mb-8 space-y-2">
+        <p class="text-xs font-medium tracking-wide text-blue-100/50 uppercase">EventBook</p>
+        <h1
+          class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+        >
+          Find a decorator
+        </h1>
+        <p class="max-w-2xl text-sm text-blue-100/70">
+          Filter published decorators by city, event type, and decoration style.
+        </p>
+      </header>
+
+      <form
+        method="get"
+        action="/search"
+        class="mb-10 space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+      >
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block space-y-2 text-sm">
+            <span class="text-blue-100/80">City</span>
+            <input
+              type="search"
+              name="city"
+              value={currentFilters.city}
+              placeholder="e.g. Warszawa"
+              class="w-full rounded-lg border border-white/15 bg-black/20 px-3 py-2 text-white placeholder:text-blue-100/40 focus:border-purple-400 focus:outline-none"
+            />
+          </label>
+        </div>
+
+        <fieldset class="space-y-2">
+          <legend class="text-sm text-blue-100/80">Event types</legend>
+          <div class="flex flex-wrap gap-2">
+            {
+              discoveryEventOptions.map((option) => (
+                <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-blue-50 hover:bg-white/10">
+                  <input
+                    type="checkbox"
+                    name="event"
+                    value={option}
+                    checked={currentFilters.eventTypes.includes(option)}
+                    class="accent-purple-500"
+                  />
+                  {option}
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="space-y-2">
+          <legend class="text-sm text-blue-100/80">Decoration styles</legend>
+          <div class="flex flex-wrap gap-2">
+            {
+              discoveryStyleOptions.map((option) => (
+                <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-blue-50 hover:bg-white/10">
+                  <input
+                    type="checkbox"
+                    name="style"
+                    value={option}
+                    checked={currentFilters.decorationStyles.includes(option)}
+                    class="accent-purple-500"
+                  />
+                  {option}
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="submit"
+            class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            Apply filters
+          </button>
+          <a
+            href="/search"
+            class="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Clear
+          </a>
+        </div>
+      </form>
+
+      {
+        loadError ? (
+          <section class="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6 text-amber-50">
+            <h2 class="text-lg font-semibold">Could not load results</h2>
+            <p class="mt-2 text-sm text-amber-100/80">{loadError}</p>
+          </section>
+        ) : result && profilesWithPhotos.length === 0 ? (
+          <section class="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+            <h2 class="text-lg font-semibold text-white">No decorators match</h2>
+            <p class="mt-2 text-sm text-blue-100/70">Try a different city or clear some filters.</p>
+          </section>
+        ) : (
+          <>
+            <p class="mb-4 text-sm text-blue-100/60">
+              {result?.totalCount ?? 0} result{(result?.totalCount ?? 0) === 1 ? "" : "s"}
+              {result && result.totalPages > 1 ? ` · page ${result.page} of ${result.totalPages}` : ""}
+            </p>
+            <ul class="grid gap-4 sm:grid-cols-2">
+              {profilesWithPhotos.map((profile) => (
+                <li>
+                  <a
+                    href={`/d/${profile.id}`}
+                    class="flex h-full gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:border-purple-400/40 hover:bg-white/10"
+                  >
+                    <div class="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/10">
+                      {profile.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" class="h-full w-full object-cover" />
+                      ) : (
+                        <div class="flex h-full w-full items-center justify-center text-lg text-blue-100/40">
+                          {profile.company_name.slice(0, 1).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div class="min-w-0 space-y-2">
+                      <h2 class="truncate text-lg font-semibold text-white">{profile.company_name}</h2>
+                      <p class="text-sm text-blue-100/70">{profile.city}</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        {[...profile.event_types.slice(0, 3), ...profile.decoration_styles.slice(0, 2)].map((chip) => (
+                          <span class="rounded-md bg-white/10 px-2 py-0.5 text-[11px] text-blue-50/90">{chip}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {(prevHref || nextHref) && (
+              <nav class="mt-8 flex items-center justify-between gap-4" aria-label="Pagination">
+                {prevHref ? (
+                  <a href={prevHref} class="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10">
+                    Previous
+                  </a>
+                ) : (
+                  <span class="px-4 py-2 text-sm text-blue-100/30">Previous</span>
+                )}
+                {nextHref ? (
+                  <a href={nextHref} class="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10">
+                    Next
+                  </a>
+                ) : (
+                  <span class="px-4 py-2 text-sm text-blue-100/30">Next</span>
+                )}
+              </nav>
+            )}
+          </>
+        )
+      }
+    </div>
+  </div>
+</Layout>

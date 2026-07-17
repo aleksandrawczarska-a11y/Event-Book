@@ -1,0 +1,167 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { createClient } from "@/lib/supabase";
+import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
+import { resolvePortfolioEntriesImages } from "@/lib/storage-url";
+import type { DecoratorProfile, PortfolioEntry } from "@/types";
+
+const PROFILE_GALLERY_LIMIT = 24;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const id = Astro.params.id;
+
+if (!supabase || !id) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const profileResult = await supabase
+  .from("decorator_profiles")
+  .select("*")
+  .eq("id", id)
+  .eq("is_published", true)
+  .maybeSingle();
+
+if (profileResult.error || !profileResult.data) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const profile = profileResult.data as DecoratorProfile;
+const avatarUrl = await resolveProfilePhotoUrl(supabase, profile.profile_photo_url);
+
+const portfolioResult = await supabase
+  .from("portfolio_entries")
+  .select("*")
+  .eq("decorator_profile_id", profile.id)
+  .eq("moderation_status", "approved")
+  .order("created_at", { ascending: false })
+  .limit(PROFILE_GALLERY_LIMIT);
+
+const entries = await resolvePortfolioEntriesImages(supabase, (portfolioResult.data ?? []) as PortfolioEntry[]);
+---
+
+<Layout title={`${profile.company_name} — EventBook`}>
+  <div class="bg-cosmic min-h-screen text-white">
+    <div class="mx-auto max-w-5xl px-4 py-6 sm:px-8">
+      <Topbar />
+
+      <p class="mb-6">
+        <a href="/search" class="text-sm text-purple-300 hover:underline">Back to search</a>
+      </p>
+
+      <header class="mb-10 flex flex-col gap-6 sm:flex-row sm:items-start">
+        <div class="h-28 w-28 shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/10">
+          {
+            avatarUrl ? (
+              <img src={avatarUrl} alt="" class="h-full w-full object-cover" />
+            ) : (
+              <div class="flex h-full w-full items-center justify-center text-3xl text-blue-100/40">
+                {profile.company_name.slice(0, 1).toUpperCase()}
+              </div>
+            )
+          }
+        </div>
+        <div class="space-y-3">
+          <h1
+            class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+          >
+            {profile.company_name}
+          </h1>
+          <p class="text-blue-100/70">{profile.city}</p>
+          <div class="flex flex-wrap gap-1.5">
+            {
+              [...profile.event_types, ...profile.decoration_styles].map((chip) => (
+                <span class="rounded-md bg-white/10 px-2 py-0.5 text-xs text-blue-50/90">{chip}</span>
+              ))
+            }
+          </div>
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Contact form coming in a later release"
+            class="mt-2 cursor-not-allowed rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm text-blue-100/50"
+          >
+            Contact — coming soon
+          </button>
+        </div>
+      </header>
+
+      {
+        profile.description && (
+          <section class="mb-10 space-y-2">
+            <h2 class="text-lg font-semibold text-white">About</h2>
+            <p class="text-sm leading-relaxed whitespace-pre-wrap text-blue-100/80">{profile.description}</p>
+          </section>
+        )
+      }
+
+      <section class="mb-10 space-y-3">
+        <h2 class="text-lg font-semibold text-white">Contact</h2>
+        <ul class="space-y-1 text-sm text-blue-100/80">
+          {
+            profile.contact_email && (
+              <li>
+                Email:{" "}
+                <a class="text-purple-300 hover:underline" href={`mailto:${profile.contact_email}`}>
+                  {profile.contact_email}
+                </a>
+              </li>
+            )
+          }
+          {profile.contact_phone && <li>Phone: {profile.contact_phone}</li>}
+          {
+            profile.instagram_url && (
+              <li>
+                Instagram:{" "}
+                <a
+                  class="text-purple-300 hover:underline"
+                  href={profile.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {profile.instagram_url}
+                </a>
+              </li>
+            )
+          }
+          {
+            !profile.contact_email && !profile.contact_phone && !profile.instagram_url && (
+              <li class="text-blue-100/50">No contact details published.</li>
+            )
+          }
+        </ul>
+      </section>
+
+      <section class="space-y-4 pb-16">
+        <h2 class="text-lg font-semibold text-white">Portfolio</h2>
+        {
+          entries.length === 0 ? (
+            <p class="text-sm text-blue-100/60">No approved portfolio photos yet.</p>
+          ) : (
+            <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {entries.map((entry) => (
+                <li class="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                  <div class="aspect-[4/3] bg-black/30">
+                    {entry.image_url ? (
+                      <img src={entry.image_url} alt="" class="h-full w-full object-cover" />
+                    ) : (
+                      <div class="flex h-full items-center justify-center text-sm text-blue-100/40">No image</div>
+                    )}
+                  </div>
+                  {(entry.event_description || entry.decoration_style || entry.location) && (
+                    <div class="space-y-1 p-3 text-xs text-blue-100/70">
+                      {entry.event_description && <p>{entry.event_description}</p>}
+                      {entry.decoration_style && <p>Style: {entry.decoration_style}</p>}
+                      {entry.location && <p>Location: {entry.location}</p>}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
+    </div>
+  </div>
+</Layout>
