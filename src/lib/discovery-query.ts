@@ -9,6 +9,8 @@ import {
 import type { DecoratorProfile } from "@/types";
 
 export const DISCOVERY_PAGE_SIZE = 24;
+/** Hard cap on ?page= to avoid huge PostgREST range offsets. */
+export const DISCOVERY_MAX_PAGE = 500;
 
 export interface DiscoveryFilters {
   city: string;
@@ -38,7 +40,8 @@ export function parseDiscoverySearchParams(params: URLSearchParams): DiscoveryFi
     .filter(isValidDecorationStyle);
 
   const pageRaw = Number.parseInt(params.get("page") ?? "1", 10);
-  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+  const page =
+    Number.isFinite(pageRaw) && pageRaw > 0 ? Math.min(pageRaw, DISCOVERY_MAX_PAGE) : 1;
 
   return { city, eventTypes, decorationStyles, page };
 }
@@ -61,14 +64,7 @@ export function buildDiscoverySearchHref(filters: Partial<DiscoveryFilters> & { 
   return query ? `/search?${query}` : "/search";
 }
 
-export async function fetchPublishedDecorators(
-  supabase: SupabaseClient,
-  filters: DiscoveryFilters,
-): Promise<DiscoveryResult> {
-  const pageSize = DISCOVERY_PAGE_SIZE;
-  const from = (filters.page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
+function buildPublishedProfilesQuery(supabase: SupabaseClient, filters: DiscoveryFilters) {
   let query = supabase
     .from("decorator_profiles")
     .select(
@@ -88,18 +84,44 @@ export async function fetchPublishedDecorators(
     query = query.overlaps("decoration_styles", filters.decorationStyles);
   }
 
-  const { data, error, count } = await query.range(from, to);
+  return query;
+}
 
-  if (error) {
-    throw new Error(error.message);
+export async function fetchPublishedDecorators(
+  supabase: SupabaseClient,
+  filters: DiscoveryFilters,
+): Promise<DiscoveryResult> {
+  const pageSize = DISCOVERY_PAGE_SIZE;
+  const requestedPage = Math.min(Math.max(filters.page, 1), DISCOVERY_MAX_PAGE);
+  const from = (requestedPage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const first = await buildPublishedProfilesQuery(supabase, filters).range(from, to);
+
+  if (first.error) {
+    throw new Error(first.error.message);
   }
 
-  const totalCount = count ?? 0;
+  const totalCount = first.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const page = Math.min(filters.page, totalPages);
+  const page = Math.min(requestedPage, totalPages);
+
+  let profiles = first.data as DecoratorProfile[];
+
+  if (page !== requestedPage && totalCount > 0) {
+    const clampedFrom = (page - 1) * pageSize;
+    const clampedTo = clampedFrom + pageSize - 1;
+    const second = await buildPublishedProfilesQuery(supabase, filters).range(clampedFrom, clampedTo);
+
+    if (second.error) {
+      throw new Error(second.error.message);
+    }
+
+    profiles = second.data as DecoratorProfile[];
+  }
 
   return {
-    profiles: data,
+    profiles,
     totalCount,
     page,
     pageSize,

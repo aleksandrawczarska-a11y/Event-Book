@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import { createClient } from "@/lib/supabase";
+import { toSafeHttpUrl } from "@/lib/profile-schema";
 import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
 import { resolvePortfolioEntriesImages } from "@/lib/storage-url";
 import type { DecoratorProfile, PortfolioEntry } from "@/types";
@@ -27,6 +28,7 @@ if (profileResult.error || !profileResult.data) {
 }
 
 const profile = profileResult.data as DecoratorProfile;
+const safeInstagramUrl = toSafeHttpUrl(profile.instagram_url);
 const avatarUrl = await resolveProfilePhotoUrl(supabase, profile.profile_photo_url);
 
 const portfolioResult = await supabase
@@ -111,22 +113,22 @@ const entries = await resolvePortfolioEntriesImages(supabase, (portfolioResult.d
           }
           {profile.contact_phone && <li>Phone: {profile.contact_phone}</li>}
           {
-            profile.instagram_url && (
+            safeInstagramUrl && (
               <li>
                 Instagram:{" "}
                 <a
                   class="text-purple-300 hover:underline"
-                  href={profile.instagram_url}
+                  href={safeInstagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {profile.instagram_url}
+                  {safeInstagramUrl}
                 </a>
               </li>
             )
           }
           {
-            !profile.contact_email && !profile.contact_phone && !profile.instagram_url && (
+            !profile.contact_email && !profile.contact_phone && !safeInstagramUrl && (
               <li class="text-blue-100/50">No contact details published.</li>
             )
           }

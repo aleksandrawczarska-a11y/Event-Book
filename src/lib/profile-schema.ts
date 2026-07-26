@@ -23,12 +23,43 @@ const optionalEmail = z
   .optional()
   .transform((value) => (value === "" || value === undefined ? null : value));
 
+const optionalHttpUrl = z
+  .union([
+    z
+      .string()
+      .trim()
+      .url("Enter a valid URL")
+      .refine((value) => /^https?:\/\//i.test(value), {
+        message: "URL must start with http:// or https://",
+      }),
+    z.literal(""),
+    z.null(),
+  ])
+  .optional()
+  .transform((value) => (value === "" || value === undefined ? null : value));
+
+/** Returns the URL only when it uses an http(s) scheme; otherwise null. */
+export function toSafeHttpUrl(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 export const profileBodySchema = z
   .object({
     company_name: z.string().trim().min(1, "Company name is required"),
     city: z.string().trim().min(1, "City is required"),
     description: optionalText,
-    instagram_url: optionalText,
+    instagram_url: optionalHttpUrl,
     contact_email: optionalEmail,
     contact_phone: optionalText,
     event_types: taxonomyArray(EVENT_TYPE_OPTIONS, "event_types"),

@@ -22,7 +22,8 @@ if (supabase) {
   try {
     result = await fetchPublishedDecorators(supabase, filters);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Failed to load decorators";
+    console.error("Failed to load published decorators", error);
+    loadError = "Failed to load decorators";
   }
 } else {
   loadError = "Supabase is not configured";

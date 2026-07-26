@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseProfileBody } from "./profile-schema";
+import { parseProfileBody, toSafeHttpUrl } from "./profile-schema";
 
 const validDraft = {
   company_name: "Test Decorator",
@@ -62,5 +62,29 @@ describe("parseProfileBody", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("accepts http(s) Instagram URLs and rejects other schemes", () => {
+    expect(
+      parseProfileBody({
+        ...validDraft,
+        instagram_url: "https://instagram.com/studio",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      parseProfileBody({
+        ...validDraft,
+        instagram_url: "javascript:alert(1)",
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("toSafeHttpUrl", () => {
+  it("allows http(s) and rejects other schemes", () => {
+    expect(toSafeHttpUrl("https://instagram.com/studio")).toBe("https://instagram.com/studio");
+    expect(toSafeHttpUrl("javascript:alert(1)")).toBeNull();
+    expect(toSafeHttpUrl("data:text/html,hi")).toBeNull();
   });
 });

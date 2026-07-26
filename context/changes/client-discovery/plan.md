@@ -39,3 +39,9 @@ Implement roadmap **S-02** (`client-discovery`): anonymous clients can search an
 #### Manual
 
 - [x] 3.4 Anon REST: published profiles visible; drafts hidden
+
+### Addendum (discovered during S-02)
+
+- Kept `astro.config.mjs` `optimizeDeps.exclude` for `astro:env*` (client + SSR) — unblocks Vite/dev when `astro_env_runtime.js` is missing from the deps cache; not part of discovery product scope, but required for stable local `npm run dev` during this change.
+- List query in `fetchPublishedDecorators` intentionally selects full published profile columns (including contact fields unused by search cards) for MVP simplicity; narrow later if needed.
+- Search result avatars resolve signed URLs with Promise.all fan-out (≤24 per page); acceptable for MVP page size — batch/cache deferred.

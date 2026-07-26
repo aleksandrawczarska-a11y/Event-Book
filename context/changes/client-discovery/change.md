@@ -1,7 +1,7 @@
 ---
 change_id: client-discovery
 title: Client search, filters, and public decorator profile
-status: implementing
+status: impl_reviewed
 created: 2026-07-17
 updated: 2026-07-17
 archived_at: null
