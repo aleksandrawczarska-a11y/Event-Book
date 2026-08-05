@@ -306,39 +306,39 @@ Close automated gates and run full manual funnel smoke.
 
 #### Automated
 
-- [x] 1.1 Unit tests for inquiry schema and abuse helpers pass
-- [x] 1.2 Mocked POST handler unit tests pass
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `npm run build` passes
+- [x] 1.1 Unit tests for inquiry schema and abuse helpers pass — b210f67
+- [x] 1.2 Mocked POST handler unit tests pass — b210f67
+- [x] 1.3 `npm run lint` passes — b210f67
+- [x] 1.4 `npm run build` passes — b210f67
 
 #### Manual
 
-- [x] 1.5 POST creates row; email delivers when Resend configured (or skip logged when unset)
-- [x] 1.6 Honeypot / rate limit behave as designed
+- [x] 1.5 POST creates row; email delivers when Resend configured (or skip logged when unset) — b210f67
+- [x] 1.6 Honeypot / rate limit behave as designed — b210f67
 
 ### Phase 2: Public contact form UX
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npm run build` passes
+- [x] 2.1 `npm run lint` passes — b210f67
+- [x] 2.2 `npm run build` passes — b210f67
 
 #### Manual
 
-- [x] 2.3 Happy-path submit shows success without account
-- [x] 2.4 Validation errors and CTA→form focus work
+- [x] 2.3 Happy-path submit shows success without account — b210f67
+- [x] 2.4 Validation errors and CTA→form focus work — b210f67
 
 ### Phase 3: Decorator inquiries panel
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npm run build` passes
+- [x] 3.1 `npm run lint` passes — b210f67
+- [x] 3.2 `npm run build` passes — b210f67
 
 #### Manual
 
-- [x] 3.3 Owner sees inquiry; other decorator does not
-- [x] 3.4 Nav / hub link to Inquiries works
+- [x] 3.3 Owner sees inquiry; other decorator does not — b210f67
+- [x] 3.4 Nav / hub link to Inquiries works — b210f67
 
 ### Phase 4: Verify end-to-end
 
