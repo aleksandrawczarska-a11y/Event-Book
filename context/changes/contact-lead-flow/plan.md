@@ -344,11 +344,11 @@ Close automated gates and run full manual funnel smoke.
 
 #### Automated
 
-- [ ] 4.1 `npm test` (inquiry-related + regression) passes
-- [ ] 4.2 `npm run lint` passes
-- [ ] 4.3 `npm run build` passes
+- [x] 4.1 `npm test` (inquiry-related + regression) passes
+- [x] 4.2 `npm run lint` passes
+- [x] 4.3 `npm run build` passes
 
 #### Manual
 
-- [ ] 4.4 Full funnel smoke (submit → panel → email/skip)
-- [ ] 4.5 Unpublished target and honeypot produce no stray rows
+- [x] 4.4 Full funnel smoke (submit → panel → email/skip)
+- [x] 4.5 Unpublished target and honeypot produce no stray rows
