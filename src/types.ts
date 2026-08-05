@@ -29,6 +29,17 @@ export interface PortfolioEntry {
   created_at: string;
 }
 
+export interface ContactInquiry {
+  id: string;
+  decorator_profile_id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string | null;
+  event_date: string;
+  needs_description: string;
+  created_at: string;
+}
+
 export interface CreateProfileInput {
   company_name: string;
   profile_photo_url?: string | null;
@@ -50,6 +61,15 @@ export interface CreatePortfolioEntryInput {
   decoration_style?: string | null;
   location?: string | null;
   tags?: string[];
+}
+
+export interface CreateContactInquiryInput {
+  decorator_profile_id: string;
+  client_name: string;
+  client_email: string;
+  client_phone?: string | null;
+  event_date: string;
+  needs_description: string;
 }
 
 export interface DashboardProfileSummary {

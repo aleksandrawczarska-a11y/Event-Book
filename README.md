@@ -113,6 +113,14 @@ SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_KEY=<anon key from CLI output>
 ```
 
+For S-03 inquiry emails, add Resend variables when you want real delivery locally:
+
+```
+RESEND_API_KEY=<resend-api-key>
+RESEND_FROM_EMAIL=leads@example.com
+RESEND_TO_OVERRIDE=<optional-dev-inbox@example.com>
+```
+
 6. To stop the stack when done:
 
 ```bash
@@ -196,6 +204,15 @@ npx wrangler deploy
 ```
 
 Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+
+For inquiry emails in S-03, also set:
+
+```bash
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put RESEND_FROM_EMAIL
+# Optional local/dev override inbox:
+npx wrangler secret put RESEND_TO_OVERRIDE
+```
 
 ## CI
 

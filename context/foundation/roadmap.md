@@ -32,7 +32,7 @@ Dekoratorzy eventowi pozyskują klientów chaotycznie przez social media; organi
 | F-01 | domain-schema-foundation | (foundation) minimalny schemat domenowy dla profili, portfolio i zapytań jest dostępny w bazie | — | Business Logic, Access Control | done |
 | S-01 | decorator-onboarding | dekorator can register, log in, create a public profile, and add portfolio entries with photos | F-01 | FR-001, FR-002, FR-003 | done |
 | S-02 | client-discovery | anonimowy klient can search and filter decorators and view a public profile with portfolio gallery | S-01, F-01 | FR-004, FR-005 | done |
-| S-03 | contact-lead-flow | klient can submit a contact inquiry; dekorator receives it by email and sees it in the panel | S-02 | US-01, FR-006, FR-007 | proposed |
+| S-03 | contact-lead-flow | klient can submit a contact inquiry; dekorator receives it by email and sees it in the panel | S-02 | US-01, FR-006, FR-007 | in-progress |
 | S-04 | admin-moderation | administrator can manually moderate portfolio content | S-01 | FR-008 | proposed |
 
 ## Baseline
@@ -101,7 +101,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Który kanał email (Supabase, zewnętrzny provider) na MVP? — Owner: user. Block: no.
 - **Risk:** To jest gwiazda przewodnia — dowodzi hipotezy marketplace lead-gen; cel speed wymaga trzymania formularza i panelu zapytań w jednym cienkim slice'u bez rozszerzeń poza FR-006/FR-007.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-04: Moderacja treści
 
@@ -124,7 +124,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01 | domain-schema-foundation | EventBook: minimal domain schema for profiles, portfolio, inquiries | — | done (`implemented`) |
 | S-01 | decorator-onboarding | EventBook: decorator registration, profile, and portfolio | — | done (`impl_reviewed`) |
 | S-02 | client-discovery | EventBook: client search, filters, and public profile view | — | done (`impl_reviewed`) |
-| S-03 | contact-lead-flow | EventBook: contact form and decorator inquiry panel | no | North star; after S-02 |
+| S-03 | contact-lead-flow | EventBook: contact form and decorator inquiry panel | — | in-progress (`planned`) |
 | S-04 | admin-moderation | EventBook: admin manual portfolio moderation | no | After S-01; can parallel S-02/S-03 |
 
 ## Open Roadmap Questions

@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
+import { ContactInquiryForm } from "@/components/discovery/ContactInquiryForm";
 import { createClient } from "@/lib/supabase";
 import { toSafeHttpUrl } from "@/lib/profile-schema";
 import { resolveProfilePhotoUrl } from "@/lib/profile-photo";
@@ -77,15 +78,12 @@ const entries = await resolvePortfolioEntriesImages(supabase, (portfolioResult.d
               ))
             }
           </div>
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Contact form coming in a later release"
-            class="mt-2 cursor-not-allowed rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm text-blue-100/50"
+          <a
+            href="#contact-inquiry-form"
+            class="mt-2 inline-block rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
           >
-            Contact — coming soon
-          </button>
+            Contact
+          </a>
         </div>
       </header>
 
@@ -133,6 +131,10 @@ const entries = await resolvePortfolioEntriesImages(supabase, (portfolioResult.d
             )
           }
         </ul>
+      </section>
+
+      <section class="mb-10 space-y-3">
+        <ContactInquiryForm decoratorProfileId={profile.id} companyName={profile.company_name} client:load />
       </section>
 
       <section class="space-y-4 pb-16">

@@ -40,8 +40,7 @@ export function parseDiscoverySearchParams(params: URLSearchParams): DiscoveryFi
     .filter(isValidDecorationStyle);
 
   const pageRaw = Number.parseInt(params.get("page") ?? "1", 10);
-  const page =
-    Number.isFinite(pageRaw) && pageRaw > 0 ? Math.min(pageRaw, DISCOVERY_MAX_PAGE) : 1;
+  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.min(pageRaw, DISCOVERY_MAX_PAGE) : 1;
 
   return { city, eventTypes, decorationStyles, page };
 }
@@ -106,7 +105,7 @@ export async function fetchPublishedDecorators(
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const page = Math.min(requestedPage, totalPages);
 
-  let profiles = first.data as DecoratorProfile[];
+  let profiles = first.data;
 
   if (page !== requestedPage && totalCount > 0) {
     const clampedFrom = (page - 1) * pageSize;
@@ -117,7 +116,7 @@ export async function fetchPublishedDecorators(
       throw new Error(second.error.message);
     }
 
-    profiles = second.data as DecoratorProfile[];
+    profiles = second.data;
   }
 
   return {

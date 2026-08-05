@@ -62,20 +62,20 @@ describe("fetchPublishedDecorators", () => {
   } as DecoratorProfile;
 
   function createQueryMock(options: {
-    ranges: Array<{
+    ranges: {
       from: number;
       to: number;
       data: DecoratorProfile[];
       count: number;
       error?: { message: string } | null;
-    }>;
+    }[];
   }) {
     const calls = {
       eq: [] as unknown[][],
       ilike: [] as unknown[][],
       overlaps: [] as unknown[][],
       order: [] as unknown[][],
-      range: [] as Array<[number, number]>,
+      range: [] as [number, number][],
     };
 
     let rangeIndex = 0;
@@ -101,11 +101,9 @@ describe("fetchPublishedDecorators", () => {
       });
       builder.range = vi.fn((from: number, to: number) => {
         calls.range.push([from, to]);
-        const response = options.ranges[rangeIndex] ?? options.ranges.at(-1);
+        const index = Math.min(rangeIndex, options.ranges.length - 1);
+        const response = options.ranges[index];
         rangeIndex += 1;
-        if (!response) {
-          return Promise.resolve({ data: [], count: 0, error: { message: "missing mock range" } });
-        }
         return Promise.resolve({
           data: response.data,
           count: response.count,
@@ -153,7 +151,7 @@ describe("fetchPublishedDecorators", () => {
   it("re-queries with clamped range when page exceeds totalPages", async () => {
     const pageSize = DISCOVERY_PAGE_SIZE;
     const totalCount = pageSize + 1; // 2 pages
-    const lastPageProfile = { ...sampleProfile, company_name: "Studio Last" } as DecoratorProfile;
+    const lastPageProfile: DecoratorProfile = { ...sampleProfile, company_name: "Studio Last" };
 
     const { supabase, calls } = createQueryMock({
       ranges: [
