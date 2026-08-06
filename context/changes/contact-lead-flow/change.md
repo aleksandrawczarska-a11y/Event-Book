@@ -1,7 +1,7 @@
 ---
 change_id: contact-lead-flow
 title: Contact inquiry form, email notify, and decorator inquiry panel
-status: implementing
+status: implemented
 created: 2026-07-27
 updated: 2026-08-06
 archived_at: null
