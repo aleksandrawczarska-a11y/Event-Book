@@ -313,13 +313,13 @@ Close automated gates and run the full manual moderation funnel + access-control
 
 #### Automated
 
-- [ ] 4.1 `npm test` (full suite) passes
-- [ ] 4.2 `npm run lint` passes
-- [ ] 4.3 `npm run build` passes
+- [x] 4.1 `npm test` (full suite) passes
+- [x] 4.2 `npm run lint` passes
+- [x] 4.3 `npm run build` passes
 
 #### Manual
 
-- [ ] 4.4 Full approve funnel (queue → public profile → badge)
-- [ ] 4.5 Full reject funnel (public profile removal → badge)
-- [ ] 4.6 Non-admin access denied at UI, API, and RLS layers
-- [ ] 4.7 Admin without own decorator profile can moderate
+- [x] 4.4 Full approve funnel (queue → public profile → badge)
+- [x] 4.5 Full reject funnel (public profile removal → badge)
+- [x] 4.6 Non-admin access denied at UI, API, and RLS layers
+- [x] 4.7 Admin without own decorator profile can moderate
