@@ -3,7 +3,7 @@ project: EventBook
 version: 1
 status: draft
 created: 2026-05-29
-updated: 2026-07-17
+updated: 2026-09-09
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -33,7 +33,7 @@ Dekoratorzy eventowi pozyskują klientów chaotycznie przez social media; organi
 | S-01 | decorator-onboarding | dekorator can register, log in, create a public profile, and add portfolio entries with photos | F-01 | FR-001, FR-002, FR-003 | done |
 | S-02 | client-discovery | anonimowy klient can search and filter decorators and view a public profile with portfolio gallery | S-01, F-01 | FR-004, FR-005 | done |
 | S-03 | contact-lead-flow | klient can submit a contact inquiry; dekorator receives it by email and sees it in the panel | S-02 | US-01, FR-006, FR-007 | done |
-| S-04 | admin-moderation | administrator can manually moderate portfolio content | S-01 | FR-008 | proposed |
+| S-04 | admin-moderation | administrator can manually moderate portfolio content | S-01 | FR-008 | done |
 
 ## Baseline
 
@@ -115,7 +115,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Moderacja przed czy po publikacji portfolio? — Owner: user. Block: no.
   - Dokładny zakres uprawnień administratora? — Owner: user. Block: no.
 - **Risk:** Przesunięty za north star S-03, bo PRD oznacza otwarte pytania moderacji jako nieblokujące planowania; przy presji czasu MVP może wystartować z prostą moderacją post-publikacji.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -150,3 +150,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 - **F-01: (foundation) minimalny schemat domenowy dla profili, portfolio i zapytań jest dostępny w bazie** — Implemented 2026-07-17 → `context/changes/domain-schema-foundation/` (`implemented`). Lesson: —.
 - **S-01: dekorator can register, log in, create and edit a public profile, and add portfolio entries with photos** — Implemented 2026-07-16 → `context/changes/decorator-onboarding/` (`impl_reviewed`). Lesson: —.
+- **S-04: administrator can manually moderate portfolio content (approve, reject, or hide entries as defined during planning).** — Archived 2026-09-09 → `context/archive/2026-08-07-admin-moderation/`. Lesson: —.
