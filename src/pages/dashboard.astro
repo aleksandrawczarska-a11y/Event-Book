@@ -1,15 +1,19 @@
 ---
 import DashboardLayout from "@/layouts/DashboardLayout.astro";
 import ModerationQueue from "@/components/admin/ModerationQueue";
+import { parseModerationQueueStatus } from "@/lib/moderation-queue";
 import { resolvePortfolioEntriesImages } from "@/lib/storage-url";
 import { createClient } from "@/lib/supabase";
-import type { DashboardProfileSummary, PortfolioEntry } from "@/types";
+import type { DashboardProfileSummary, ModerationStatus, PortfolioEntry } from "@/types";
+
+const QUEUE_FILTERS: ModerationStatus[] = ["pending", "approved", "rejected"];
 
 const { user, isAdmin } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+const queueStatus = parseModerationQueueStatus(Astro.url.searchParams.get("status"));
 
 let profile: DashboardProfileSummary | null = null;
-let pendingEntries: (PortfolioEntry & { image_url: string | null; companyName: string })[] = [];
+let queueEntries: (PortfolioEntry & { image_url: string | null; companyName: string })[] = [];
 
 if (supabase && user) {
   const { data } = await supabase
@@ -21,14 +25,14 @@ if (supabase && user) {
   profile = data;
 
   if (isAdmin) {
-    const { data: pending } = await supabase
+    const { data: queued } = await supabase
       .from("portfolio_entries")
       .select("*")
-      .eq("moderation_status", "pending")
+      .eq("moderation_status", queueStatus)
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const rows = (pending ?? []) as PortfolioEntry[];
+    const rows = (queued ?? []) as PortfolioEntry[];
     const profileIds = [...new Set(rows.map((row) => row.decorator_profile_id))];
 
     const companyById = new Map<string, string>();
@@ -44,7 +48,7 @@ if (supabase && user) {
     }
 
     const withImages = await resolvePortfolioEntriesImages(supabase, rows);
-    pendingEntries = withImages.map((entry) => ({
+    queueEntries = withImages.map((entry) => ({
       ...entry,
       companyName: companyById.get(entry.decorator_profile_id) ?? "Unknown decorator",
     }));
@@ -71,9 +75,25 @@ const isPublished = profile?.is_published ?? false;
         <section class="space-y-3 rounded-2xl border border-purple-400/30 bg-purple-500/10 p-6 backdrop-blur-xl">
           <div>
             <h2 class="text-lg font-semibold text-purple-100">Moderation</h2>
-            <p class="mt-1 text-sm text-purple-100/70">Review pending portfolio entries from decorators.</p>
+            <p class="mt-1 text-sm text-purple-100/70">Review portfolio entries and reverse approve or reject.</p>
           </div>
-          <ModerationQueue initialEntries={pendingEntries} client:only="react" />
+          <nav class="flex flex-wrap gap-2" aria-label="Moderation status">
+            {QUEUE_FILTERS.map((status) => (
+              <a
+                href={`/dashboard?status=${status}`}
+                class:list={[
+                  "rounded-lg px-3 py-1.5 text-sm capitalize",
+                  queueStatus === status
+                    ? "bg-purple-400/30 text-purple-50"
+                    : "bg-white/10 text-purple-100/80 hover:bg-white/15",
+                ]}
+                aria-current={queueStatus === status ? "page" : undefined}
+              >
+                {status}
+              </a>
+            ))}
+          </nav>
+          <ModerationQueue initialEntries={queueEntries} activeStatus={queueStatus} client:only="react" />
         </section>
       )
     }

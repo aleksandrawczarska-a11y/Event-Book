@@ -4,7 +4,7 @@ import { Check, ImageOff, X } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
-import type { PortfolioEntry } from "@/types";
+import type { ModerationStatus, PortfolioEntry } from "@/types";
 
 export type ModerationQueueEntry = PortfolioEntry & {
   image_url: string | null;
@@ -13,9 +13,10 @@ export type ModerationQueueEntry = PortfolioEntry & {
 
 interface Props {
   initialEntries: ModerationQueueEntry[];
+  activeStatus: ModerationStatus;
 }
 
-export default function ModerationQueue({ initialEntries }: Props) {
+export default function ModerationQueue({ initialEntries, activeStatus }: Props) {
   const [entries, setEntries] = useState(initialEntries);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function ModerationQueue({ initialEntries }: Props) {
 
       {entries.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-8 text-center text-sm text-blue-100/70">
-          No pending portfolio entries to moderate.
+          No {activeStatus} portfolio entries to moderate.
         </p>
       ) : (
         <ul className="space-y-3">

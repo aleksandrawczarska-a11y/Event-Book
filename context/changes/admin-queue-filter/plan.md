@@ -179,22 +179,22 @@ Use the parser in SSR and keep Approve/Reject usable on non-pending views.
 
 #### Automated
 
-- [x] 1.1 RED: parseModerationQueueStatus defaults to pending and accepts approved/rejected
-- [x] 1.2 GREEN: implement src/lib/moderation-queue.ts so 1.1 passes
-- [x] 1.3 `npm test -- --run src/lib/moderation-queue.test.ts`
-- [x] 1.4 `npm run lint` passes
+- [x] 1.1 RED: parseModerationQueueStatus defaults to pending and accepts approved/rejected — 22ff741
+- [x] 1.2 GREEN: implement src/lib/moderation-queue.ts so 1.1 passes — 22ff741
+- [x] 1.3 `npm test -- --run src/lib/moderation-queue.test.ts` — 22ff741
+- [x] 1.4 `npm run lint` passes — 22ff741
 
 ### Phase 2: Apply filter on the dashboard
 
 #### Automated
 
-- [ ] 2.1 dashboard.astro filters the queue with parseModerationQueueStatus
-- [ ] 2.2 ModerationQueue empty copy uses activeStatus
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 dashboard.astro filters the queue with parseModerationQueueStatus
+- [x] 2.2 ModerationQueue empty copy uses activeStatus
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 
-- [ ] 2.5 Default and unknown ?status= stay on the pending queue
-- [ ] 2.6 Rejected filter + Approve reverses hide (public profile visible)
-- [ ] 2.7 Non-admin still cannot see Moderation
+- [x] 2.5 Default and unknown ?status= stay on the pending queue
+- [x] 2.6 Rejected filter + Approve reverses hide (public profile visible)
+- [x] 2.7 Non-admin still cannot see Moderation
