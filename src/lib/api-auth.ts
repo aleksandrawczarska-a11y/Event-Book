@@ -21,6 +21,19 @@ export async function requireAuth(context: Parameters<APIRoute>[0]) {
   return { supabase, user } as const;
 }
 
+export async function requireAdmin(context: Parameters<APIRoute>[0]) {
+  const auth = await requireAuth(context);
+  if ("error" in auth) {
+    return auth;
+  }
+
+  if (auth.user.app_metadata.role !== "admin") {
+    return { error: jsonError("ADMIN_REQUIRED", "Admin access required", 403) } as const;
+  }
+
+  return auth;
+}
+
 export async function requireDecoratorProfile(supabase: NonNullable<ReturnType<typeof createClient>>, userId: string) {
   const { data, error } = await supabase.from("decorator_profiles").select("id").eq("user_id", userId).maybeSingle();
 
