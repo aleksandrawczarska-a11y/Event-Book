@@ -287,16 +287,16 @@ Close automated gates and run the full manual moderation funnel + access-control
 
 #### Automated
 
-- [ ] 2.1 Mocked API handler unit tests pass
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `npm run build` passes
+- [x] 2.1 Mocked API handler unit tests pass
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `npm run build` passes
 
 #### Manual
 
-- [ ] 2.4 Moderation section visible only to admin; queue shows seeded pending entry
-- [ ] 2.5 Approve updates status and entry becomes visible on public profile
-- [ ] 2.6 Reject updates status and entry stays hidden from public profile
-- [ ] 2.7 Non-admin PATCH to admin API is rejected (401/403)
+- [x] 2.4 Moderation section visible only to admin; queue shows seeded pending entry
+- [x] 2.5 Approve updates status and entry becomes visible on public profile
+- [x] 2.6 Reject updates status and entry stays hidden from public profile
+- [x] 2.7 Non-admin PATCH to admin API is rejected (401/403)
 
 ### Phase 3: Decorator-facing status badge
 

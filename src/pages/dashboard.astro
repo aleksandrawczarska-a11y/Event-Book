@@ -1,12 +1,15 @@
 ---
 import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import ModerationQueue from "@/components/admin/ModerationQueue";
+import { resolvePortfolioEntriesImages } from "@/lib/storage-url";
 import { createClient } from "@/lib/supabase";
-import type { DashboardProfileSummary } from "@/types";
+import type { DashboardProfileSummary, PortfolioEntry } from "@/types";
 
-const { user } = Astro.locals;
+const { user, isAdmin } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let profile: DashboardProfileSummary | null = null;
+let pendingEntries: (PortfolioEntry & { image_url: string | null; companyName: string })[] = [];
 
 if (supabase && user) {
   const { data } = await supabase
@@ -16,6 +19,36 @@ if (supabase && user) {
     .maybeSingle();
 
   profile = data;
+
+  if (isAdmin) {
+    const { data: pending } = await supabase
+      .from("portfolio_entries")
+      .select("*")
+      .eq("moderation_status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    const rows = (pending ?? []) as PortfolioEntry[];
+    const profileIds = [...new Set(rows.map((row) => row.decorator_profile_id))];
+
+    const companyById = new Map<string, string>();
+    if (profileIds.length > 0) {
+      const { data: companies } = await supabase
+        .from("decorator_profiles")
+        .select("id, company_name")
+        .in("id", profileIds);
+
+      for (const company of companies ?? []) {
+        companyById.set(company.id as string, company.company_name as string);
+      }
+    }
+
+    const withImages = await resolvePortfolioEntriesImages(supabase, rows);
+    pendingEntries = withImages.map((entry) => ({
+      ...entry,
+      companyName: companyById.get(entry.decorator_profile_id) ?? "Unknown decorator",
+    }));
+  }
 }
 
 const hasProfile = profile !== null;
@@ -32,6 +65,18 @@ const isPublished = profile?.is_published ?? false;
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
       </p>
     </div>
+
+    {
+      isAdmin && (
+        <section class="space-y-3 rounded-2xl border border-purple-400/30 bg-purple-500/10 p-6 backdrop-blur-xl">
+          <div>
+            <h2 class="text-lg font-semibold text-purple-100">Moderation</h2>
+            <p class="mt-1 text-sm text-purple-100/70">Review pending portfolio entries from decorators.</p>
+          </div>
+          <ModerationQueue initialEntries={pendingEntries} client:only="react" />
+        </section>
+      )
+    }
 
     {
       !hasProfile && (
