@@ -188,13 +188,13 @@ Use the parser in SSR and keep Approve/Reject usable on non-pending views.
 
 #### Automated
 
-- [x] 2.1 dashboard.astro filters the queue with parseModerationQueueStatus
-- [x] 2.2 ModerationQueue empty copy uses activeStatus
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
+- [x] 2.1 dashboard.astro filters the queue with parseModerationQueueStatus — 0408c35
+- [x] 2.2 ModerationQueue empty copy uses activeStatus — 0408c35
+- [x] 2.3 `npm run lint` passes — 0408c35
+- [x] 2.4 `npm run build` passes — 0408c35
 
 #### Manual
 
-- [x] 2.5 Default and unknown ?status= stay on the pending queue
-- [x] 2.6 Rejected filter + Approve reverses hide (public profile visible)
-- [x] 2.7 Non-admin still cannot see Moderation
+- [x] 2.5 Default and unknown ?status= stay on the pending queue — 0408c35
+- [x] 2.6 Rejected filter + Approve reverses hide (public profile visible) — 0408c35
+- [x] 2.7 Non-admin still cannot see Moderation — 0408c35

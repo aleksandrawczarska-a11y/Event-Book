@@ -1,7 +1,7 @@
 ---
 change_id: admin-queue-filter
 title: Admin queue status filter for reversible moderation
-status: implementing
+status: implemented
 created: 2026-09-10
 updated: 2026-09-10
 archived_at: null
