@@ -273,15 +273,15 @@ Close automated gates and run the full manual moderation funnel + access-control
 
 #### Automated
 
-- [x] 1.1 Unit tests for `requireAdmin` pass
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm run build` passes
+- [x] 1.1 Unit tests for `requireAdmin` pass — 5f0b137
+- [x] 1.2 `npm run lint` passes — 5f0b137
+- [x] 1.3 `npm run build` passes — 5f0b137
 
 #### Manual
 
-- [x] 1.4 `isAdmin` fail-closed for non-admin/unauthenticated sessions
-- [x] 1.5 `is_admin()` returns true for an assigned admin user
-- [x] 1.6 Admin RLS SELECT on `portfolio_entries` works; non-admin still scoped to own rows
+- [x] 1.4 `isAdmin` fail-closed for non-admin/unauthenticated sessions — 5f0b137
+- [x] 1.5 `is_admin()` returns true for an assigned admin user — 5f0b137
+- [x] 1.6 Admin RLS SELECT on `portfolio_entries` works; non-admin still scoped to own rows — 5f0b137
 
 ### Phase 2: Admin moderation UI + API
 

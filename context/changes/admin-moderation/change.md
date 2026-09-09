@@ -3,7 +3,7 @@ change_id: admin-moderation
 title: Admin portfolio moderation (approve/reject queue)
 status: implementing
 created: 2026-08-07
-updated: 2026-08-10
+updated: 2026-09-09
 archived_at: null
 ---
 
