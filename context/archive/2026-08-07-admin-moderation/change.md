@@ -1,10 +1,10 @@
 ---
 change_id: admin-moderation
 title: Admin portfolio moderation (approve/reject queue)
-status: impl_reviewed
+status: archived
 created: 2026-08-07
-updated: 2026-09-10
-archived_at: null
+updated: 2026-09-09
+archived_at: 2026-09-09T22:36:54Z
 ---
 
 ## Notes
