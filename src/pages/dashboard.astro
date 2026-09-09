@@ -14,6 +14,7 @@ const queueStatus = parseModerationQueueStatus(Astro.url.searchParams.get("statu
 
 let profile: DashboardProfileSummary | null = null;
 let queueEntries: (PortfolioEntry & { image_url: string | null; companyName: string })[] = [];
+let queueLoadError: string | null = null;
 
 if (supabase && user) {
   const { data } = await supabase
@@ -25,14 +26,18 @@ if (supabase && user) {
   profile = data;
 
   if (isAdmin) {
-    const { data: queued } = await supabase
+    const { data: queued, error: queuedError } = await supabase
       .from("portfolio_entries")
       .select("*")
       .eq("moderation_status", queueStatus)
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const rows = (queued ?? []) as PortfolioEntry[];
+    if (queuedError) {
+      queueLoadError = "Could not load the moderation queue. Try again.";
+    }
+
+    const rows = (queuedError ? [] : (queued ?? [])) as PortfolioEntry[];
     const profileIds = [...new Set(rows.map((row) => row.decorator_profile_id))];
 
     const companyById = new Map<string, string>();
@@ -93,7 +98,15 @@ const isPublished = profile?.is_published ?? false;
               </a>
             ))}
           </nav>
-          <ModerationQueue initialEntries={queueEntries} activeStatus={queueStatus} client:only="react" />
+          {
+            queueLoadError ? (
+              <p class="text-sm text-red-200" role="alert">
+                {queueLoadError}
+              </p>
+            ) : (
+              <ModerationQueue initialEntries={queueEntries} activeStatus={queueStatus} client:only="react" />
+            )
+          }
         </section>
       )
     }
