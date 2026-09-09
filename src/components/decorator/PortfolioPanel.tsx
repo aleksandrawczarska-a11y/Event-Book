@@ -5,10 +5,26 @@ import { ServerError } from "@/components/auth/ServerError";
 import { PortfolioEntryForm, type PortfolioEntryView } from "@/components/decorator/PortfolioEntryForm";
 import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
+import type { ModerationStatus } from "@/types";
 
 interface Props {
   initialEntries: PortfolioEntryView[];
 }
+
+const MODERATION_BADGE: Record<ModerationStatus, { label: string; className: string }> = {
+  approved: {
+    label: "Approved",
+    className: "border-emerald-400/30 bg-emerald-500/10 text-emerald-100",
+  },
+  pending: {
+    label: "Pending",
+    className: "border-amber-400/30 bg-amber-500/10 text-amber-100",
+  },
+  rejected: {
+    label: "Rejected",
+    className: "border-red-400/30 bg-red-500/10 text-red-200",
+  },
+};
 
 export default function PortfolioPanel({ initialEntries }: Props) {
   const [entries, setEntries] = useState(initialEntries);
@@ -68,7 +84,14 @@ export default function PortfolioPanel({ initialEntries }: Props) {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <p className="font-medium text-white">{entry.event_description ?? "Untitled realization"}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium text-white">{entry.event_description ?? "Untitled realization"}</p>
+                    <span
+                      className={`rounded-md border px-2 py-0.5 text-xs font-medium ${MODERATION_BADGE[entry.moderation_status].className}`}
+                    >
+                      {MODERATION_BADGE[entry.moderation_status].label}
+                    </span>
+                  </div>
                   <p className="text-sm text-blue-100/70">
                     {[entry.decoration_style, entry.location].filter(Boolean).join(" · ") || "No style/location"}
                   </p>
