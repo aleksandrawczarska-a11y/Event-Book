@@ -16,7 +16,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Fail-closed: anything other than an exact "admin" role match is treated as non-admin.
-  context.locals.isAdmin = context.locals.user?.app_metadata.role === "admin";
+  context.locals.isAdmin = context.locals.user?.app_metadata?.role === "admin";
 
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
     if (!context.locals.user) {

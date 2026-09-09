@@ -27,7 +27,7 @@ export async function requireAdmin(context: Parameters<APIRoute>[0]) {
     return auth;
   }
 
-  if (auth.user.app_metadata.role !== "admin") {
+  if (auth.user.app_metadata?.role !== "admin") {
     return { error: jsonError("ADMIN_REQUIRED", "Admin access required", 403) } as const;
   }
 
