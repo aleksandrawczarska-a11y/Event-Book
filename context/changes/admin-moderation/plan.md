@@ -302,12 +302,12 @@ Close automated gates and run the full manual moderation funnel + access-control
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npm run build` passes
+- [x] 3.1 `npm run lint` passes — 28f1745
+- [x] 3.2 `npm run build` passes — 28f1745
 
 #### Manual
 
-- [x] 3.3 Badge shows correct state for pending/approved/rejected entries
+- [x] 3.3 Badge shows correct state for pending/approved/rejected entries — 28f1745
 
 ### Phase 4: Verify end-to-end
 
