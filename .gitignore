@@ -33,3 +33,8 @@ pnpm-debug.log*
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# dependency-cruiser generated reports
+/dependency-graph.html
+/high-level-dependency-graph.html
+/dependency-violation-report.html

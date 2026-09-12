@@ -10,7 +10,14 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "depcruise": "depcruise src tests",
+    "depcruise:graph": "depcruise src --include-only '^(src)' --output-type dot | dot -T svg | depcruise-wrap-stream-in-html > dependency-graph.html",
+    "depcruise:graph:dev": "depcruise src --include-only '^(src)' --prefix vscode://file/$(pwd)/ --output-type dot | dot -T svg | depcruise-wrap-stream-in-html | browser",
+    "depcruise:graph:archi": "depcruise src --include-only '^(src)' --output-type archi | dot -T svg | depcruise-wrap-stream-in-html > high-level-dependency-graph.html",
+    "depcruise:html": "depcruise src tests --progress --output-type err-html --output-to dependency-violation-report.html",
+    "depcruise:text": "depcruise src tests --progress --output-type text",
+    "depcruise:focus": "depcruise src tests --progress --output-type text --focus"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -40,6 +47,7 @@
     "@eslint/js": "^9.29.0",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.2",
+    "dependency-cruiser": "^18.2.0",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.7.0",
