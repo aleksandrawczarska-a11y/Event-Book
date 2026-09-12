@@ -22,7 +22,13 @@ function buildPlainText({ inquiry, profileCompanyName }: SendInquiryNotification
   ].join("\n");
 }
 
-export async function sendInquiryNotification(input: SendInquiryNotificationInput): Promise<{ sent: boolean }> {
+export type InquiryNotificationSkipReason = "missing_contact" | "not_configured" | "provider_error";
+
+export type InquiryNotificationResult =
+  | { sent: true }
+  | { sent: false; reason: InquiryNotificationSkipReason };
+
+export async function sendInquiryNotification(input: SendInquiryNotificationInput): Promise<InquiryNotificationResult> {
   if (!input.to) {
     // Server-side observability for fail-soft notify path.
     // eslint-disable-next-line no-console -- intentional server log
@@ -30,7 +36,7 @@ export async function sendInquiryNotification(input: SendInquiryNotificationInpu
       decoratorProfileId: input.inquiry.decorator_profile_id,
       inquiryId: input.inquiry.id,
     });
-    return { sent: false };
+    return { sent: false, reason: "missing_contact" };
   }
 
   if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
@@ -39,7 +45,7 @@ export async function sendInquiryNotification(input: SendInquiryNotificationInpu
       inquiryId: input.inquiry.id,
       decoratorProfileId: input.inquiry.decorator_profile_id,
     });
-    return { sent: false };
+    return { sent: false, reason: "not_configured" };
   }
 
   // Empty override must fall through; `??` would keep "".
@@ -69,13 +75,13 @@ export async function sendInquiryNotification(input: SendInquiryNotificationInpu
         body: await response.text(),
         inquiryId: input.inquiry.id,
       });
-      return { sent: false };
+      return { sent: false, reason: "provider_error" };
     }
 
     return { sent: true };
   } catch (error) {
     // eslint-disable-next-line no-console -- intentional server log
     console.error("Failed to send inquiry email", error);
-    return { sent: false };
+    return { sent: false, reason: "provider_error" };
   }
 }

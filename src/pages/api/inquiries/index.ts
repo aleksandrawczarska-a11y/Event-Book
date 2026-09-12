@@ -82,11 +82,11 @@ export const POST: APIRoute = async (context) => {
     ...insertPayload,
     created_at: new Date().toISOString(),
   };
-  await sendInquiryNotification({
+  const notification = await sendInquiryNotification({
     to: profileResult.data.contact_email as string | null,
     inquiry,
     profileCompanyName: profileResult.data.company_name as string,
   });
 
-  return Response.json({ inquiry: { id: inquiry.id } }, { status: 201 });
+  return Response.json({ inquiry: { id: inquiry.id }, notification }, { status: 201 });
 };

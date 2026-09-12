@@ -140,8 +140,9 @@ describe("POST /api/inquiries", () => {
     );
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as { inquiry: { id: string } };
+    const body = (await response.json()) as { inquiry: { id: string }; notification: { sent: boolean } };
     expect(body.inquiry.id).toMatch(/^[0-9a-f-]{36}$/i);
+    expect(body.notification).toEqual({ sent: true });
     expect(inquiryInsertQuery.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         id: body.inquiry.id,
@@ -228,8 +229,9 @@ describe("POST /api/inquiries", () => {
     );
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as { inquiry: { id: string } };
+    const body = (await response.json()) as { inquiry: { id: string }; notification: { sent: boolean } };
     expect(body.inquiry.id).toBeTruthy();
+    expect(body.notification).toEqual({ sent: false });
     expect(sendInquiryNotificationMock).toHaveBeenCalled();
   });
 });
