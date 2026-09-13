@@ -230,26 +230,26 @@ Leave `inquiry-rate-limit-proof` Phase 2 unchecked. When this change’s Phase 1
 
 #### Automated
 
-- [x] 2.1 `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` and of `contact_inquiries` `.insert(` (inbox `listInquiriesForProfile` may still `.from("contact_inquiries")` for select)
-- [x] 2.2 `POST` still exports from `index.ts`
-- [x] 2.3 `npm test -- --run src/lib/inquiry-submit.test.ts src/pages/api/inquiries/index.test.ts` passes
-- [x] 2.4 `npx eslint` on the touched TS files passes
+- [x] 2.1 `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` and of `contact_inquiries` `.insert(` (inbox `listInquiriesForProfile` may still `.from("contact_inquiries")` for select) — cbded39
+- [x] 2.2 `POST` still exports from `index.ts` — cbded39
+- [x] 2.3 `npm test -- --run src/lib/inquiry-submit.test.ts src/pages/api/inquiries/index.test.ts` passes — cbded39
+- [x] 2.4 `npx eslint` on the touched TS files passes — cbded39
 
 #### Manual
 
-- [x] 2.5 Published `/d/:id` still submits a valid inquiry (201 / thanks). No new copy.
-- [x] 2.6 Confirm the route file no longer inlines `insert(` / `sendInquiryNotification`
+- [x] 2.5 Published `/d/:id` still submits a valid inquiry (201 / thanks). No new copy. — cbded39
+- [x] 2.6 Confirm the route file no longer inlines `insert(` / `sendInquiryNotification` — cbded39
 
 ### Phase 3: Enforce the thin POST
 
 #### Automated
 
-- [ ] 3.1 `rg "from(\"contact_inquiries\")" src/pages/api/inquiries/index.ts` is empty
-- [ ] 3.2 `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty
-- [ ] 3.3 `npm run depcruise` finds no circular modules / no new forbidden edges
-- [ ] 3.4 `npx eslint` on touched inquiry files passes
-- [ ] 3.6 `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty
-- [ ] 3.7 `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty
+- [x] 3.1 `rg "from(\"contact_inquiries\")" src/pages/api/inquiries/index.ts` is empty
+- [x] 3.2 `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty
+- [x] 3.3 `npm run depcruise` finds no circular modules / no new forbidden edges
+- [x] 3.4 `npx eslint` on touched inquiry files passes
+- [x] 3.6 `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty
+- [x] 3.7 `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty
 
 #### Manual
 
