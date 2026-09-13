@@ -187,6 +187,14 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 
+## Public URL
+
+EventBook is a responsive **web** app — not App Store or Google Play (out of MVP scope). Production host is Cloudflare Workers (`wrangler.jsonc` name: `event-book`). After `npx wrangler deploy` the public URL is:
+
+`https://event-book.<your-workers-subdomain>.workers.dev`
+
+(or a custom domain attached in the Cloudflare dashboard). Source repository: https://github.com/aleksandrawczarska-a11y/Event-Book
+
 ## Deployment
 
 This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
@@ -216,7 +224,7 @@ npx wrangler secret put RESEND_TO_OVERRIDE
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions runs lint + Vitest (`npm test`) + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step. Playwright e2e stays local (needs a running app and seed).
 
 ## License
 

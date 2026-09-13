@@ -38,7 +38,7 @@ Enforced by @eslint.config.js (`strictTypeChecked`, React Compiler) and @.pretti
 
 - Unit/integration: Vitest — colocate as `src/**/*.test.ts` (reference: @src/lib/utils.test.ts); config at @vitest.config.ts.
 - E2E: Playwright specs in `tests/` (@playwright.config.ts).
-- CI runs lint + build only (@.github/workflows/ci.yml); add `npm test` when coverage grows.
+- CI runs lint + Vitest + build (@.github/workflows/ci.yml). Playwright e2e stays local (needs a running app and seed).
 
 ## Mutation testing
 
