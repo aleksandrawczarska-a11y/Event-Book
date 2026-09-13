@@ -8,7 +8,7 @@ Extract the published-inquiry compose step from `POST /api/inquiries` into `src/
 
 ## Starting Point
 
-Live limiter already participates in `index.test.ts` (`inquiry-rate-limit-proof` p1, `8be920f`). The 429 flood case is still missing. Other APIs compose in the route; there is no `services/` layer.
+Live limiter already participates in `index.test.ts` (`inquiry-rate-limit-proof` p1, `8be920f`). Phase 1 flood (429 ⇒ no insert) landed in `408edff`. Other APIs compose in the route; there is no `services/` layer.
 
 ## Desired End State
 
