@@ -48,6 +48,16 @@ function createContext(body: unknown) {
   } as never;
 }
 
+const validInquiryBody = {
+  decorator_profile_id: DECORATOR_PROFILE_ID,
+  client_name: "Anna Client",
+  client_email: "anna@example.com",
+  client_phone: "",
+  event_date: "2026-08-20",
+  needs_description: "Need floral decor for an outdoor wedding.",
+  company_website: "",
+};
+
 describe("POST /api/inquiries", () => {
   let POST: typeof import("./index").POST;
 
@@ -246,5 +256,46 @@ describe("POST /api/inquiries", () => {
     expect(body.inquiry.id).toBeTruthy();
     expect(body.notification).toEqual({ sent: false });
     expect(sendInquiryNotificationMock).toHaveBeenCalled();
+  });
+
+  it("returns 429 and does not insert once the live limiter is spent", async () => {
+    const decoratorProfileQuery = createDecoratorProfileQuery({
+      data: {
+        id: DECORATOR_PROFILE_ID,
+        company_name: "Studio A",
+        contact_email: "decorator@example.com",
+      },
+      error: null,
+    });
+    const inquiryInsertQuery = createContactInquiryQuery({
+      error: null,
+    });
+
+    createClientMock.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "decorator_profiles") {
+          return decoratorProfileQuery;
+        }
+        if (table === "contact_inquiries") {
+          return inquiryInsertQuery;
+        }
+        throw new Error(`Unexpected table ${table}`);
+      }),
+    });
+
+    for (let i = 0; i < RATE_LIMIT_MAX_REQUESTS; i += 1) {
+      const allowed = await POST(createContext(validInquiryBody));
+      expect(allowed.status).toBe(201);
+    }
+
+    expect(inquiryInsertQuery.insert).toHaveBeenCalledTimes(RATE_LIMIT_MAX_REQUESTS);
+
+    const limited = await POST(createContext(validInquiryBody));
+    const limitedBody = (await limited.json()) as { error: { code: string } };
+
+    expect(limited.status).toBe(429);
+    expect(limitedBody.error.code).toBe("RATE_LIMITED");
+    expect(inquiryInsertQuery.insert).toHaveBeenCalledTimes(RATE_LIMIT_MAX_REQUESTS);
+    expect(sendInquiryNotificationMock).toHaveBeenCalledTimes(RATE_LIMIT_MAX_REQUESTS);
   });
 });

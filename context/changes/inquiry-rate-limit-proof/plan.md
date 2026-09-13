@@ -200,6 +200,8 @@ Not applicable. Test-only. No schema, env, or Worker binding changes.
 
 ### Phase 2: Characterize 429 ⇒ no insert
 
+> Proof **absorbed** by `inquiry-submit-extract` Phase 1. Do not implement this flood case here in parallel.
+
 #### Automated
 
 - [ ] 2.1 New case exists: one-past-budget `POST` → `429` + `RATE_LIMITED` + `insert` not called for that request
