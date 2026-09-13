@@ -3,6 +3,7 @@ import type { APIRoute } from "astro";
 import { jsonError } from "@/lib/api-error";
 import { consumeInquiryRateLimit, getInquiryClientIp, hasInquiryHoneypotContent } from "@/lib/inquiry-abuse";
 import { sendInquiryNotification } from "@/lib/inquiry-email";
+import { fetchPublishedDecoratorProfile } from "@/lib/inquiry-query";
 import { parseInquiryBody } from "@/lib/inquiry-schema";
 import { createClient } from "@/lib/supabase";
 import type { ContactInquiry } from "@/types";
@@ -49,12 +50,11 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
-  const profileResult = await supabase
-    .from("decorator_profiles")
-    .select("id, company_name, contact_email")
-    .eq("id", parsed.data.decorator_profile_id)
-    .eq("is_published", true)
-    .maybeSingle();
+  const profileResult = await fetchPublishedDecoratorProfile(
+    supabase,
+    parsed.data.decorator_profile_id,
+    "id, company_name, contact_email",
+  );
 
   if (profileResult.error) {
     return jsonError("PROFILE_FETCH_FAILED", "Failed to verify decorator profile", 500);
