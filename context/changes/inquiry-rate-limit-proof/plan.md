@@ -185,18 +185,18 @@ Not applicable. Test-only. No schema, env, or Worker binding changes.
 
 #### Automated
 
-- [x] 1.1 `src/pages/api/inquiries/index.test.ts` has no `vi.mock("@/lib/inquiry-abuse")` (and no equivalent stub of `consumeInquiryRateLimit` that forces `{ limited: false }`)
-- [x] 1.2 Existing cases still pass: `503`, honeypot `204`, happy `201`, unpublished `404`, email-fail `201`
-- [x] 1.3 Honeypot case still proves the limiter was not consumed (spy `not.toHaveBeenCalled` or an equivalent “budget unused” assert)
-- [x] 1.4 `npm test -- --run src/pages/api/inquiries/index.test.ts` passes
-- [x] 1.5 `npm test -- --run src/lib/inquiry-abuse.test.ts` still passes
-- [x] 1.6 `npm run lint` passes
-- [x] 1.9 `beforeEach` calls `resetInquiryRateLimitBuckets` and `createContext` sets `cf-connecting-ip`
+- [x] 1.1 `src/pages/api/inquiries/index.test.ts` has no `vi.mock("@/lib/inquiry-abuse")` (and no equivalent stub of `consumeInquiryRateLimit` that forces `{ limited: false }`) — 8be920f
+- [x] 1.2 Existing cases still pass: `503`, honeypot `204`, happy `201`, unpublished `404`, email-fail `201` — 8be920f
+- [x] 1.3 Honeypot case still proves the limiter was not consumed (spy `not.toHaveBeenCalled` or an equivalent “budget unused” assert) — 8be920f
+- [x] 1.4 `npm test -- --run src/pages/api/inquiries/index.test.ts` passes — 8be920f
+- [x] 1.5 `npm test -- --run src/lib/inquiry-abuse.test.ts` still passes — 8be920f
+- [x] 1.6 `npm run lint` passes — 8be920f
+- [x] 1.9 `beforeEach` calls `resetInquiryRateLimitBuckets` and `createContext` sets `cf-connecting-ip` — 8be920f
 
 #### Manual
 
-- [x] 1.7 Open `index.test.ts` and confirm the abuse mock block is gone, `resetInquiryRateLimitBuckets` runs in `beforeEach`, and `createContext` sets `cf-connecting-ip`
-- [x] 1.8 Confirm no production file (`inquiry-abuse.ts`, `index.ts`) changed in this phase
+- [x] 1.7 Open `index.test.ts` and confirm the abuse mock block is gone, `resetInquiryRateLimitBuckets` runs in `beforeEach`, and `createContext` sets `cf-connecting-ip` — 8be920f
+- [x] 1.8 Confirm no production file (`inquiry-abuse.ts`, `index.ts`) changed in this phase — 8be920f
 
 ### Phase 2: Characterize 429 ⇒ no insert
 
