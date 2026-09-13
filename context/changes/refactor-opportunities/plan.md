@@ -242,34 +242,34 @@ None. Rollback is revert of the move + five imports + the conventions pointer. N
 
 #### Automated
 
-- [x] 1.1 `npm test -- src/components/auth/FormField.test.ts` passes (named export, label/`htmlFor`, input vs textarea).
-- [x] 1.2 `src/components/auth/FormField.tsx` still exists; no `src/components/forms/` yet; the five islands still import `@/components/auth/FormField`.
+- [x] 1.1 `npm test -- src/components/auth/FormField.test.ts` passes (named export, label/`htmlFor`, input vs textarea). — f8d5b67
+- [x] 1.2 `src/components/auth/FormField.tsx` still exists; no `src/components/forms/` yet; the five islands still import `@/components/auth/FormField`. — f8d5b67
 
 #### Manual
 
-- [x] 1.3 Confirm this phase adds no user-visible route, label, or style change (test-only).
+- [x] 1.3 Confirm this phase adds no user-visible route, label, or style change (test-only). — f8d5b67
 
 ### Phase 2: Move FormField to `components/forms`
 
 #### Automated
 
-- [x] 2.1 `npm test -- src/components/forms/FormField.test.ts` passes.
-- [x] 2.2 The five islands import `@/components/forms/FormField`; `src/components/auth/FormField.tsx` is gone.
-- [x] 2.3 `npm test -- src/pages/api/inquiries/index.test.ts` still passes (no handler rewrite).
+- [x] 2.1 `npm test -- src/components/forms/FormField.test.ts` passes. — f8d5b67
+- [x] 2.2 The five islands import `@/components/forms/FormField`; `src/components/auth/FormField.tsx` is gone. — f8d5b67
+- [x] 2.3 `npm test -- src/pages/api/inquiries/index.test.ts` still passes (no handler rewrite). — f8d5b67
 
 #### Manual
 
-- [x] 2.4 Sign-in and the public inquiry form still show the same field labels; inquiry `needs` is still a textarea. No new copy.
+- [x] 2.4 Sign-in and the public inquiry form still show the same field labels; inquiry `needs` is still a textarea. No new copy. — f8d5b67
 
 ### Phase 3: Enforce the new home
 
 #### Automated
 
-- [x] 3.1 `rg "components/auth/FormField" src` is empty; `rg "components/forms/FormField" src` hits the five islands + the test.
-- [x] 3.2 `npm test -- src/components/forms/FormField.test.ts src/pages/api/inquiries/index.test.ts` passes.
-- [x] 3.3 `npm run lint` passes on the touched TSX/rule-adjacent files.
-- [x] 3.4 `npm run depcruise` finds no circular modules.
+- [x] 3.1 `rg "components/auth/FormField" src` is empty; `rg "components/forms/FormField" src` hits the five islands + the test. — f8d5b67
+- [x] 3.2 `npm test -- src/components/forms/FormField.test.ts src/pages/api/inquiries/index.test.ts` passes. — f8d5b67
+- [x] 3.3 `npm run lint` passes on the touched TSX/rule-adjacent files. — f8d5b67
+- [x] 3.4 `npm run depcruise` finds no circular modules. — f8d5b67
 
 #### Manual
 
-- [x] 3.5 Open `/auth/signin` and a published `/d/:id` contact form: labels and focus (`htmlFor`) still match.
+- [x] 3.5 Open `/auth/signin` and a published `/d/:id` contact form: labels and focus (`htmlFor`) still match. — f8d5b67
