@@ -1,7 +1,7 @@
 ---
 change_id: inquiry-submit-extract
 title: Extract inquiry compose from POST into lib
-status: implementing
+status: implemented
 created: 2026-09-13
 updated: 2026-09-13
 archived_at: null

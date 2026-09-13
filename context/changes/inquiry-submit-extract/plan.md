@@ -244,13 +244,13 @@ Leave `inquiry-rate-limit-proof` Phase 2 unchecked. When this change’s Phase 1
 
 #### Automated
 
-- [x] 3.1 `rg "from(\"contact_inquiries\")" src/pages/api/inquiries/index.ts` is empty
-- [x] 3.2 `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty
-- [x] 3.3 `npm run depcruise` finds no circular modules / no new forbidden edges
-- [x] 3.4 `npx eslint` on touched inquiry files passes
-- [x] 3.6 `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty
-- [x] 3.7 `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty
+- [x] 3.1 `rg "from(\"contact_inquiries\")" src/pages/api/inquiries/index.ts` is empty — 13faed9
+- [x] 3.2 `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty — 13faed9
+- [x] 3.3 `npm run depcruise` finds no circular modules / no new forbidden edges — 13faed9
+- [x] 3.4 `npx eslint` on touched inquiry files passes — 13faed9
+- [x] 3.6 `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty — 13faed9
+- [x] 3.7 `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty — 13faed9
 
 #### Manual
 
-- [ ] 3.5 Sign-in unaffected; Flora inquiry labels unchanged
+- [x] 3.5 Sign-in unaffected; Flora inquiry labels unchanged — 13faed9
