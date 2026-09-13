@@ -29,7 +29,7 @@ Previous hand-off mentioned Vercel; decision revised to Cloudflare to match star
 
 ## Operational story
 
-- **Public URL**: Worker name `event-book` (`wrangler.jsonc`). After deploy: `https://event-book.<account-subdomain>.workers.dev` (or a custom domain). Not App Store / Play — web only (PRD guardrail).
+- **Public URL**: https://event-book.event-book.workers.dev (Worker name + account subdomain `event-book`). Not App Store / Play — web only (PRD guardrail).
 - **Preview deploys**: not configured yet — add Cloudflare Workers preview URLs or GitHub Actions deploy-on-PR in M1L5.
 - **Secrets**: `SUPABASE_URL`, `SUPABASE_KEY` — local: `.env` + `.dev.vars`; CI: GitHub repository secrets; production: `npx wrangler secret put SUPABASE_URL` / `SUPABASE_KEY` or Cloudflare dashboard.
 - **Rollback**: redeploy previous Worker version via Cloudflare dashboard or `wrangler deployments list` + rollback; no automatic DB rollback (Supabase migrations are separate).

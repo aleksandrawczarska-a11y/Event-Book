@@ -189,9 +189,9 @@ Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_
 
 ## Public URL
 
-EventBook is a responsive **web** app — not App Store or Google Play (out of MVP scope). Production host is Cloudflare Workers (`wrangler.jsonc` name: `event-book`). After `npx wrangler deploy` the public URL is:
+EventBook is a responsive **web** app — not App Store or Google Play (out of MVP scope). Production host is Cloudflare Workers (`wrangler.jsonc` name: `event-book`). Public URL:
 
-`https://event-book.<your-workers-subdomain>.workers.dev`
+**https://event-book.event-book.workers.dev**
 
 (or a custom domain attached in the Cloudflare dashboard). Source repository: https://github.com/aleksandrawczarska-a11y/Event-Book
 
