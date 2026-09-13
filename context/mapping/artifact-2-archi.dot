@@ -1,0 +1,18 @@
+strict digraph "dependency-cruiser output"{
+    rankdir="LR" splines="true" overlap="false" nodesep="0.16" ranksep="0.18" fontname="Helvetica-bold" fontsize="9" style="rounded,bold,filled" fillcolor="#ffffff" compound="true"
+    node [shape="box" style="rounded, filled" height="0.2" color="black" fillcolor="#ffffcc" fontname="Helvetica" fontsize="9"]
+    edge [arrowhead="normal" arrowsize="0.6" penwidth="2.0" color="#00000033" fontname="Helvetica" fontsize="9"]
+
+    subgraph "cluster_src" {label="src" "src/components" [label=<components> tooltip="components" URL="src/components" shape="box3d"] }
+    "src/components" -> "src/lib" [arrowhead="onormal" penwidth="1.0"]
+    "src/components" -> "src/types.ts" [arrowhead="onormal" penwidth="1.0"]
+    subgraph "cluster_src" {label="src" "src/env.d.ts" [label=<env.d.ts> tooltip="env.d.ts" URL="src/env.d.ts" fillcolor="#ccffcc"] }
+    subgraph "cluster_src" {label="src" "src/lib" [label=<lib> tooltip="lib" URL="src/lib" shape="box3d"] }
+    "src/lib" -> "src/types.ts" [arrowhead="onormal" penwidth="1.0"]
+    subgraph "cluster_src" {label="src" "src/middleware.ts" [label=<middleware.ts> tooltip="middleware.ts" URL="src/middleware.ts" fillcolor="#ddfeff"] }
+    "src/middleware.ts" -> "src/lib"
+    subgraph "cluster_src" {label="src" "src/pages" [label=<pages> tooltip="pages" URL="src/pages" shape="box3d"] }
+    "src/pages" -> "src/lib"
+    "src/pages" -> "src/types.ts" [arrowhead="onormal" penwidth="1.0"]
+    subgraph "cluster_src" {label="src" "src/types.ts" [label=<types.ts> tooltip="types.ts" URL="src/types.ts" fillcolor="#ddfeff"] }
+}

@@ -1,0 +1,55 @@
+# Analiza cykli zależności — EventBook
+
+**Data:** 2026-09-13  
+**Projekt:** EventBook (Astro 6 SSR + React islands) — **nie** przykładowe repo `channels` / `platform` z lekcji.  
+**Źródło hotspotów:** w repo **nie ma** `context/mapping/artifact-1-territory.md`. Aktywne obszary wzięte z `context/foundation/test-plan.md` (hot-spot scope: `src`, `supabase`; churn admin/visibility + north-star inquiry) oraz slice’ów F-01 i S-01–S-04 w `context/foundation/roadmap.md`.
+
+Narzędzie: dependency-cruiser (`npm run depcruise` = `depcruise src tests`, config `.dependency-cruiser.cjs`, `no-circular` = `warn`). Grafu Graphviz/DOT nie generowano.
+
+## Mapowanie ścieżek lekcja → EventBook
+
+| Ścieżka z lekcji | Odpowiednik w EventBook |
+|---|---|
+| `channels/src/components/admin-console` | `src/components/admin`, `src/components/decorator`, `src/components/discovery`, `src/components/auth` |
+| `packages` / `utils` | `src/lib`, `src/types.ts` |
+| `actionions` / API | `src/pages/api` |
+| `platform/client` | `src/pages` (SSR), `src/layouts`, React islands |
+| `platform/types` | `src/types.ts` |
+| `platform/src` | `src/middleware.ts` |
+
+## Kluczowe obserwacje
+
+1. **Zero cykli.** `npm run depcruise` na `src` + `tests`: 74 moduły, 158 krawędzi, `circular modules 0`. To nie jest „cichy warn” — graf TS/TSX jest DAG-iem.
+
+2. **Warstwy idą w jedną stronę.** `pages/api` → `lib` → liście (`types.ts`, `api-error.ts`, `supabase.ts`). `lib` nie importuje `components` ani `pages`. Cykl w stylu legacy powstałby, gdyby helper z `lib` zaczął ciągnąć islandę albo stronę.
+
+3. **Ryzyko to huby, nie pętle.** Metrics: `src/types.ts` Ca=15, `src/lib/api-error.ts` Ca=14, `src/lib/api-auth.ts` Ca=7, `src/lib/supabase.ts` Ca=7. Zmiana kontraktu błędu albo sesji uderza w admin, inquiry i portfolio naraz — jak cykl, tylko bez formalnej pętli.
+
+4. **`auth` jest wspólną UI dla admin / discovery / decorator.** `FormField` i `ServerError` siedzą w folderze auth, a używają ich moderacja i formularz leada. Gdyby `auth` zaimportował feature islandę, to byłby pierwszy prawdziwy cykl w najgorętszych obszarach.
+
+5. **Ślepa plamka `.astro`.** W `.dependency-cruiser.cjs` `extensions` to tylko `.ts` / `.tsx` / `.d.ts`. Strony (np. `dashboard.astro`, `d/[id].astro`, `search.astro`), layouty i `Topbar.astro` nie są w grafie. Ręczny przegląd importów: nadal jednokierunkowo (page → layout/lib/island). Cruiser tego nie potwierdza.
+
+## Wyniki per aktywny obszar
+
+| Obszar | Co znalazłeś | Dowód z dependency-cruiser | Dlaczego to ważne przy zmianie | Związek z territory / test-plan | Co sprawdzić dalej |
+|---|---|---|---|---|---|
+| **Całe `src` + `tests`** | **Brak cykli.** 74 moduły, 158 krawędzi, 0 naruszeń `no-circular`. | `✔ no dependency violations found (74 modules, 158 dependencies cruised)` — to samo dla `src/components src/lib src/pages` (61 / 146). JSON: `circular modules 0`. | W legacy-stylu cykl oznacza, że zmiana „w jednym miejscu” wymusza przebudowę całego pierścienia i psuje izolację testów. Tutaj tego pierścienia nie ma — koszt zmiany idzie od **hubów**, nie od pętli. | Brak `artifact-1-territory.md`; test-plan: *hot-spot scope = `src`, `supabase`*. Pełny dump repo świadomie pominięty. | Trzymać `npm run depcruise` przy PR-ach do `src/lib` i `src/pages/api`. Nie podnosić `no-circular` w commicie — wystarczy obecny `warn` (i tak 0). |
+| **`src/lib`** | **Brak cykli w lib.** Wewnątrz: `api-auth` → `api-error` + `supabase`; `discovery-query` / `profile-schema` → `decorator-taxonomy`; reszta to liście. Nikt z lib nie wraca do pages/components. | `--focus "^src/lib"`: `src/lib/api-auth.ts → src/lib/api-error.ts` / `→ src/lib/supabase.ts`; `src/lib/discovery-query.ts → src/lib/decorator-taxonomy.ts` + `src/types.ts`; `src/lib/moderation-queue.ts → src/types.ts`. Metrics: folder `src/lib` Ca=34, Ce=4, I=11%. | W starym monolicie `utils` często zamyka cykl z UI. Tu `lib` jest dnem stosu — tanie w utrzymaniu, **drogie w kontrakcie**: zmiana `api-error` albo `supabase` rusza admin API, inquiry API i middleware. | Test-plan risk #2: hot-spot `src/lib` + `src/pages` (admin gate). Risk #3/#5: `inquiry-*`. Roadmap S-02: `discovery-query`. | Czy nowy helper w `lib` nie zaczyna importować React/`@/components`. Czy `types.ts` nie zaczyna importować schematów zod z `lib` (to zamknęłoby pętlę types ↔ lib). |
+| **`src/pages` + `src/pages/api`** | **Brak cykli** w tym, co cruiser widzi (same handlery `.ts`). API → tylko `lib` + `types`. **Strony `.astro` poza grafem.** | `--focus "^src/pages"`: `src/pages/api/admin/portfolio/[id].ts → src/lib/api-auth.ts` + `api-error` + `types`; `src/pages/api/inquiries/index.ts → api-error`, `inquiry-abuse`, `inquiry-email`, `inquiry-schema`, `supabase`, `types`. Metrics: folder `src/pages` Ce=30, Ca=0, I=100% (same wychodzące). | Jednokierunkowe API jest zdrowe: zmiana ścieżki URL nie ciągnie lib w drugą stronę. W legacy cykl page↔service znaczy „nie da się przenieść endpointu bez UI”. Tu ten problem jeszcze nie istnieje — **o ile** strony Astro zostaną jednokierunkowe. | Test-plan #1: `src/pages` + `src/components` (widoczność portfolio). #2: admin API. Roadmap S-03: `api/inquiries`. Churn 90d: `dashboard.astro`, `d/[id].astro`, `search.astro`, `api/admin`, `api/inquiries`. | Ręcznie (cruiser ich nie widzi): `dashboard.astro` składa `ModerationQueue` + `moderation-queue` + `storage-url`; `d/[id].astro` składa `ContactInquiryForm` + `storage-url` + `profile-schema`. Upewnić się, że islandy nie importują `@/pages/*`. |
+| **`src/components/admin`** | **Brak cyklu.** `ModerationQueue` idzie w dół: `auth/ServerError`, `ui/button`, `lib/api-error`, `types`. Nic nie wraca do admin. | `--focus "^src/components/(admin\|discovery)"`: `src/components/admin/ModerationQueue.tsx → src/components/auth/ServerError.tsx` / `ui/button.tsx` / `src/lib/api-error.ts` / `src/types.ts`. Metrics: folder I=100%, Ca=0. | W admin-console z lekcji cykl z `platform/types` albo `utils` utrudnia zmianę kolejki bez ruszania całego klienta. Tu kolejka jest liściem UI — zmiana statusu moderacji jest tania w komponencie, **droga w `types.ModerationStatus` + `api-auth`**, bo to współdzielone z API. | Test-plan #1/#2 + roadmap S-04; 90d churn: `ModerationQueue.tsx`, `api/admin/portfolio/[id].ts`, `dashboard.astro`. To najgorętszy odpowiednik `admin-console`. | Czy `ModerationQueue` nie zacznie importować `decorator/PortfolioPanel` „żeby podglądnąć zdjęcie” — to spiąłoby admin ↔ decorator. Gate zostaje w `api-auth` / `locals.isAdmin`, nie w islandzie. |
+| **`src/components/discovery`** | **Brak cyklu.** `ContactInquiryForm` → te same klocki auth/ui + `api-error`. Nie sięga do `inquiry-schema` / `inquiry-abuse` (to zostaje na serwerze). | Ten sam `--focus`: `src/components/discovery/ContactInquiryForm.tsx → src/components/auth/FormField.tsx` / `ServerError.tsx` / `ui/button.tsx` / `src/lib/api-error.ts`. Metrics: I=100%, Ca=0. | North-star (S-03) jest rozdzielony: walidacja/abuse w `pages/api/inquiries` + `lib`, formularz tylko UI + `api-error`. W legacy cykl form↔service znaczy, że zmiana limitu albo honeypota wymusza przebudowę klienta i odwrotnie. Tu jeszcze nie. | Test-plan #3/#5 (lead + junk); roadmap S-03; churn: `ContactInquiryForm.tsx`, `d/[id].astro`, `inquiry-*`. Odpowiednik „gorącego klienta”. | Nie wciągać `inquiry-schema` do islandy „żeby mieć te same komunikaty” bez świadomej decyzji — wspólny schemat UI↔API to pierwszy krok do cyklu, gdy schema zaimportuje coś z komponentu. |
+| **`src/components` (auth / decorator / ui)** | **Brak cykli.** Decorator → auth + ui + lib. Auth → ui/`utils`. **Sprzężenie krzyżowe:** trzy feature foldery dzielą `auth` jako zestaw pól. | Pełny `text`: `PortfolioPanel → PortfolioEntryForm → FormField/ServerError`; `ProfileForm → FormField/ServerError/ProfileAvatarUpload`; `SignInForm`/`SignUpForm` → ten sam zestaw; `SubmitButton → button → utils`. Metrics: `ServerError` Ca=7, `FormField` Ca=5, `button` Ca=7; folder `src/components/auth` I=20%. | W legacy „shared form controls w złym folderze” to klasyczna pułapka: zmiana logowania psuje moderację i lead form, a odwrotny import zamyka cykl. Dziś auth nic nie wie o admin/discovery — hierarchia trzyma. | Roadmap S-01 onboarding (`decorator/*`, `auth/*`); test-plan #1 widoczność portfolio. Auth nie jest osobnym hot-spotem w test-plan, ale jest **wspólnym dnem** aktywnych UI. | Gdy `FormField` urośnie o logikę domenową, wynieść go do `components/ui` albo `components/forms`, zanim auth zacznie zależeć od discovery/admin. |
+| **`src/middleware.ts` + `src/layouts`** | **Brak cyklu** na tym, co widać: middleware → tylko `supabase`. Layouty **poza** cruiserem. Ręcznie: `DashboardLayout` → `Layout` → `Banner` + `config-status` → `supabase`. | `text`: `src/middleware.ts → src/lib/supabase.ts`. Metrics: `src/middleware.ts` Ce=1, Ca=0, I=100%. Layoutów brak na liście 50 modułów `src`. | Middleware jako cykl z pages to koszmar legacy (guard importuje dashboard, dashboard importuje guard). Tu middleware jest cienki i fail-closed na `app_metadata.role`. Layout ciągnie `config-status` — gdyby `config-status` importował layout/page, powstałby cykl SSR. | `PROTECTED_ROUTES` / admin flag: test-plan #2, archive S-04. Layouty = odpowiednik `platform/client` shell. | Czy `config-status` zostaje liściem. Czy nowa ochrona ścieżki idzie do `PROTECTED_ROUTES`, a nie do importu strony z middleware. Dodać `.astro` do analizy (osobny one-off, bez commita configu), żeby layouty weszły do grafu. |
+| **`src/types.ts` (hub, nie cykl)** | **Brak cyklu** — czysty liść, największy Ca w repo. | Metrics: `module src/types.ts` N=1, Ca=15, Ce=0, I=0%. Top dependents z JSON: `15 src/types.ts`, potem `14 src/lib/api-error.ts`. | To odpowiednik `platform/types`. W legacy types często importują serwisy „dla wygody” i zamykają cykl z całym klientem. Dziś zmiana `ModerationStatus` / `ContactInquiry` / `DecoratorProfile` jest szeroka, ale **lokalna w jednym pliku** — nadal da się to ogarnąć bez pętli. | Wspólny kontrakt S-01–S-04 i test-plan risk #1–#6. Churn 90d dotyka `types.ts` przy inquiry i taxonomy. | Nie importować z `lib/*` do `types.ts`. Rozważyć podział typów per bounded context dopiero gdy plik zacznie zbierać stałe/funkcje (wtedy Ce > 0 i cykl jest o krok). |
+
+## Jak czytać ten wynik
+
+EventBook nie ma problemu, którego szuka lekcja na przykładzie channels/platform — **nie ma cykli w aktywnych obszarach**. Graf TS/TSX jest płytki i jednokierunkowy: strony i islandy na górze, `lib` w środku, `types` / `api-error` / `supabase` na dole.
+
+To, co *zachowuje się jak* dług legacy przy zmianie, to:
+
+- trzy huby (`types`, `api-error`, `api-auth`/`supabase`) współdzielone przez admin, discovery i onboarding;
+- `components/auth` używane poza logowaniem;
+- strony `.astro`, których cruiser nie widzi, a które już spinają te obszary w runtime (np. `dashboard.astro` = admin + lib, `d/[id].astro` = discovery + lib).
+
+Nie wymyślano cykli. Następny sensowny krok kursowy to pilnować kierunku importów przy kolejnym slice, nie rysować grafu całego repo.
