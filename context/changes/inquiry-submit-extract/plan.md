@@ -212,17 +212,17 @@ Leave `inquiry-rate-limit-proof` Phase 2 unchecked. When this change’s Phase 1
 
 #### Automated
 
-- [x] 1.1 New case: one-past-budget `POST` → `429` + `RATE_LIMITED` + `insert` not called for that request
-- [x] 1.2 Oracle uses imported `RATE_LIMIT_MAX_REQUESTS` plus insert-call count
-- [x] 1.3 `npm test -- --run src/pages/api/inquiries/index.test.ts` passes
-- [x] 1.4 `npm test -- --run src/lib/inquiry-abuse.test.ts` still passes
-- [x] 1.5 `npx eslint src/pages/api/inquiries/index.test.ts` passes
+- [x] 1.1 New case: one-past-budget `POST` → `429` + `RATE_LIMITED` + `insert` not called for that request — 408edff
+- [x] 1.2 Oracle uses imported `RATE_LIMIT_MAX_REQUESTS` plus insert-call count — 408edff
+- [x] 1.3 `npm test -- --run src/pages/api/inquiries/index.test.ts` passes — 408edff
+- [x] 1.4 `npm test -- --run src/lib/inquiry-abuse.test.ts` still passes — 408edff
+- [x] 1.5 `npx eslint src/pages/api/inquiries/index.test.ts` passes — 408edff
 
 #### Manual
 
-- [x] 1.6 Read the new case: persistence oracle is “insert not called,” not merely status `429`
-- [x] 1.7 Confirm `inquiry-abuse.ts` is still the in-memory `Map` (no KV / DO)
-- [x] 1.8 Confirm this phase did not extract `submitPublishedInquiry` yet
+- [x] 1.6 Read the new case: persistence oracle is “insert not called,” not merely status `429` — 408edff
+- [x] 1.7 Confirm `inquiry-abuse.ts` is still the in-memory `Map` (no KV / DO) — 408edff
+- [x] 1.8 Confirm this phase did not extract `submitPublishedInquiry` yet — 408edff
 
 ### Phase 2: Extract `submitPublishedInquiry`
 
