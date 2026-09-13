@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Calendar, Mail, MessageSquare, Phone, Send, User } from "lucide-react";
 
 import { ServerError } from "@/components/auth/ServerError";
-import { FormField } from "@/components/auth/FormField";
+import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
 
@@ -29,7 +29,7 @@ const initialState: FormState = {
   company_website: "",
 };
 
-export function ContactInquiryForm({ decoratorProfileId, companyName }: Props) {
+export default function ContactInquiryForm({ decoratorProfileId, companyName }: Props) {
   const [form, setForm] = useState<FormState>(initialState);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -177,6 +177,8 @@ export function ContactInquiryForm({ decoratorProfileId, companyName }: Props) {
         placeholder="Describe your event and decoration needs"
         error={fieldErrors.needs_description}
         icon={<MessageSquare className="size-4" />}
+        multiline
+        rows={4}
       />
 
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">

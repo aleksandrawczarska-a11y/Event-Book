@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Building2, Globe, Mail, MapPin, Phone, Save, User } from "lucide-react";
 
 import { ServerError } from "@/components/auth/ServerError";
-import { FormField } from "@/components/auth/FormField";
+import { FormField } from "@/components/forms/FormField";
 import { ProfileAvatarUpload } from "@/components/decorator/ProfileAvatarUpload";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

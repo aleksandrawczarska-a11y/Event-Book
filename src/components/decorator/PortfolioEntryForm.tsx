@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Camera, MapPin, Palette, Plus, Save, Tag, Text } from "lucide-react";
 
 import { ServerError } from "@/components/auth/ServerError";
-import { FormField } from "@/components/auth/FormField";
+import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/button";
 import type { ApiErrorBody } from "@/lib/api-error";
 import type { PortfolioEntry } from "@/types";

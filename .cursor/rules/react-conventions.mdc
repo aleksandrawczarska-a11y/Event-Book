@@ -11,7 +11,8 @@ Use React only for **interactive islands** embedded in Astro pages. Static or se
 ## File placement
 
 - `src/components/ui/` — reusable primitives (shadcn-style); reference: @src/components/ui/button.tsx
-- `src/components/auth/` — auth forms and shared form pieces
+- `src/components/forms/` — shared fields (`FormField.tsx`); named exports (`export function FormField`)
+- `src/components/auth/` — auth islands only (sign-in/up, password toggle, server error, submit)
 - `src/components/<feature>/` — feature-specific interactive UI
 
 Import shared code via `@/*` (maps to `src/*`). Do not import from `src/pages/` into components.
@@ -19,7 +20,7 @@ Import shared code via `@/*` (maps to `src/*`). Do not import from `src/pages/` 
 ## Component shape
 
 - Functional components only; no class components.
-- Export **named** exports from `ui/` (`export { Button }`); **default** export for top-level form/page islands (see @src/components/auth/SignInForm.tsx).
+- Export **named** exports from `ui/` (`export { Button }`) and `forms/` (`export function FormField`); **default** export for top-level form/page islands (see @src/components/auth/SignInForm.tsx).
 - Define props with a `Props` interface or `React.ComponentProps<"element">` extension — no implicit `any`.
 - Prefix intentionally unused bindings with `_`.
 
@@ -36,7 +37,7 @@ Import shared code via `@/*` (maps to `src/*`). Do not import from `src/pages/` 
 ## Icons & accessibility
 
 - Icons: `lucide-react` with `className="size-4"` (or match sibling usage).
-- Form fields: associate `label` + `id`, surface errors inline — follow @src/components/auth/FormField.tsx.
+- Form fields: associate `label` + `id`, surface errors inline — follow @src/components/forms/FormField.tsx.
 
 ## Lint enforcement
 

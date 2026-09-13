@@ -17,6 +17,8 @@ interface FormFieldProps {
   hint?: ReactNode;
   icon: ReactNode;
   endContent?: ReactNode;
+  multiline?: boolean;
+  rows?: number;
 }
 
 export function FormField({
@@ -31,28 +33,49 @@ export function FormField({
   hint,
   icon,
   endContent,
+  multiline = false,
+  rows = 3,
 }: FormFieldProps) {
+  const fieldClassName = cn(
+    inputBase,
+    multiline && "pt-2 pl-10 resize-y",
+    error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+  );
+
   return (
     <div>
       <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
         {label}
       </label>
       <div className="relative">
-        <span className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40">{icon}</span>
-        <input
-          id={id}
-          name={name ?? id}
-          type={type}
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-          placeholder={placeholder}
-          className={cn(
-            inputBase,
-            error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
-          )}
-        />
+        <span className={cn("absolute left-3 size-4 text-white/40", multiline ? "top-3" : "top-1/2 -translate-y-1/2")}>
+          {icon}
+        </span>
+        {multiline ? (
+          <textarea
+            id={id}
+            name={name ?? id}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
+            placeholder={placeholder}
+            rows={rows}
+            className={fieldClassName}
+          />
+        ) : (
+          <input
+            id={id}
+            name={name ?? id}
+            type={type}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
+            placeholder={placeholder}
+            className={fieldClassName}
+          />
+        )}
         {endContent}
       </div>
       {error ? (
