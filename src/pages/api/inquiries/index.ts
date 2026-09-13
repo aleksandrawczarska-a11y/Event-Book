@@ -1,12 +1,10 @@
 import type { APIRoute } from "astro";
 
 import { jsonError } from "@/lib/api-error";
-import { consumeInquiryRateLimit, getInquiryClientIp, hasInquiryHoneypotContent } from "@/lib/inquiry-abuse";
-import { sendInquiryNotification } from "@/lib/inquiry-email";
-import { fetchPublishedDecoratorProfile } from "@/lib/inquiry-query";
+import { hasInquiryHoneypotContent } from "@/lib/inquiry-abuse";
 import { parseInquiryBody } from "@/lib/inquiry-schema";
+import { submitPublishedInquiry } from "@/lib/inquiry-submit";
 import { createClient } from "@/lib/supabase";
-import type { ContactInquiry } from "@/types";
 
 export const prerender = false;
 
@@ -42,51 +40,25 @@ export const POST: APIRoute = async (context) => {
     return validationFailed(parsed.error.issues);
   }
 
-  const clientIp = getInquiryClientIp(context.request.headers);
-  const rateLimit = consumeInquiryRateLimit(clientIp, parsed.data.decorator_profile_id);
-  if (rateLimit.limited) {
+  const result = await submitPublishedInquiry(supabase, parsed.data, context.request.headers);
+
+  if (result.status === "limited") {
     return jsonError("RATE_LIMITED", "Too many inquiries sent. Please try again later.", 429, {
-      retryAfterMs: Math.max(0, rateLimit.resetAt - Date.now()),
+      retryAfterMs: result.retryAfterMs,
     });
   }
 
-  const profileResult = await fetchPublishedDecoratorProfile(
-    supabase,
-    parsed.data.decorator_profile_id,
-    "id, company_name, contact_email",
-  );
-
-  if (profileResult.error) {
+  if (result.status === "profile_error") {
     return jsonError("PROFILE_FETCH_FAILED", "Failed to verify decorator profile", 500);
   }
 
-  if (!profileResult.data) {
+  if (result.status === "not_found") {
     return jsonError("PROFILE_NOT_FOUND", "Published decorator profile not found", 404);
   }
 
-  const inquiryId = crypto.randomUUID();
-  const insertPayload = {
-    id: inquiryId,
-    ...parsed.data,
-  };
-
-  const insertResult = await supabase.from("contact_inquiries").insert(insertPayload);
-
-  if (insertResult.error) {
-    // eslint-disable-next-line no-console -- intentional server log; do not leak to client
-    console.error("Failed to create inquiry", insertResult.error);
+  if (result.status === "insert_failed") {
     return jsonError("INQUIRY_CREATE_FAILED", "Failed to create inquiry", 500);
   }
 
-  const inquiry: ContactInquiry = {
-    ...insertPayload,
-    created_at: new Date().toISOString(),
-  };
-  const notification = await sendInquiryNotification({
-    to: profileResult.data.contact_email as string | null,
-    inquiry,
-    profileCompanyName: profileResult.data.company_name as string,
-  });
-
-  return Response.json({ inquiry: { id: inquiry.id }, notification }, { status: 201 });
+  return Response.json({ inquiry: { id: result.inquiry.id }, notification: result.notification }, { status: 201 });
 };

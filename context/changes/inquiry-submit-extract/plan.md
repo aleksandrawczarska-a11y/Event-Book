@@ -10,9 +10,9 @@ User locked **B (C-submit)** after the m4l4 option interview. Research: `context
 
 - `src/pages/api/inquiries/index.ts` still composes the north star inline (7 `@/` imports). Sequence: `createClient` → JSON → honeypot `204` → `parseInquiryBody` → `getInquiryClientIp` + `consumeInquiryRateLimit` → `fetchPublishedDecoratorProfile` → `insert` → fail-soft `sendInquiryNotification` → `201`.
 - Other write APIs (`src/pages/api/profile/index.ts`, portfolio) also compose in the route. There is **no** `src/lib/services/` layer. Extract into `src/lib/`, same home as `inquiry-query.ts` / `inquiry-abuse.ts`.
-- `inquiry-rate-limit-proof` Phase 1 is on origin (`8be920f`): handler test uses the live limiter. Phase 2 (429 + insert not called) is **not** implemented. This plan **absorbs** that proof as Phase 1 so C-submit does not relocate an untested branch. Do not implement `inquiry-rate-limit-proof` Phase 2 in parallel.
+- `inquiry-rate-limit-proof` Phase 1 is on origin (`8be920f`): handler test uses the live limiter. This plan’s Phase 1 (429 ⇒ no insert) **landed** in `408edff` and absorbed the sibling Phase 2 proof. Do not implement `inquiry-rate-limit-proof` Phase 2 in parallel. Sibling Phase 2 stays unchecked with a pointer.
 - Plan-review nit F3 on the sibling plan still applies: `createContactInquiryQuery` builds a **new** `insert` fn per POST. A flood needs one shared insert mock (or a dedicated extra-POST insert that must stay unused) and a non-null `createClient` on the extra POST so it 429s instead of 503.
-- Handler already returns `jsonError("RATE_LIMITED", …, 429)` at `index.ts:47-50`. Mechanism exists; proof does not.
+- Handler already returns `jsonError("RATE_LIMITED", …, 429)` at `index.ts:47-50`. The missing proof is now the Phase 1 flood case in `index.test.ts` (`408edff`).
 
 ## Desired End State
 
@@ -53,7 +53,7 @@ Three commitable phases. Mechanism (live limiter + 429 proof) goes green **befor
 
 **Shared insert mock.** Reuse one `insert` fn (and one non-null client) for the whole flood. A new builder per POST makes `toHaveBeenCalledTimes(MAX)` meaningless (sibling review F3).
 
-**What moves.** Extract from rate-limit through notify (inclusive). Leave JSON parse, honeypot, and zod in the route — those are HTTP/body concerns. The helper takes a parsed body + `supabase` + request headers (or already-resolved IP).
+**What moves.** Extract from rate-limit through notify (inclusive). Leave JSON parse, honeypot, and zod in the route — those are HTTP/body concerns. The helper takes a parsed body + `supabase` + `Headers`; it calls `getInquiryClientIp` internally so IP policy stays next to `consumeInquiryRateLimit`.
 
 **Return shape.** Discriminated result (`limited` / `profile_error` / `not_found` / `insert_failed` / `ok`) so `POST` only maps to `Response`. Do not throw for expected domain outcomes.
 
@@ -107,7 +107,7 @@ Move rate-limit → profile → insert → notify into `src/lib/inquiry-submit.t
 
 **Intent**: One function owns the published-inquiry compose. Same statuses/side effects as today’s `index.ts:45-91`.
 
-**Contract**: Named export. Inputs: Supabase client, parsed inquiry fields, `Headers` or IP. Output: discriminated union the route can map without re-querying.
+**Contract**: Named export. Inputs: Supabase client, parsed inquiry fields, `Headers`. Resolve IP with `getInquiryClientIp` inside the helper. Output: discriminated union the route can map without re-querying.
 
 #### 2. Helper tests
 
@@ -125,7 +125,7 @@ Move rate-limit → profile → insert → notify into `src/lib/inquiry-submit.t
 
 #### Automated Verification:
 
-- `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` + inquiry `insert` besides tests
+- `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` and of `contact_inquiries` `.insert(` (inbox `listInquiriesForProfile` may still `.from("contact_inquiries")` for select)
 - `POST` still exports from `index.ts`; no `submitInquiry` name collision required
 - `npm test -- --run src/lib/inquiry-submit.test.ts src/pages/api/inquiries/index.test.ts` passes
 - `npx eslint` on the touched TS files passes
@@ -163,6 +163,8 @@ Leftover-path and graph checks. No new CI job.
 
 - `rg "from\\(\"contact_inquiries\"\\)" src/pages/api/inquiries/index.ts` is empty
 - `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty
+- `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty
+- `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty
 - `npm run depcruise` finds no circular modules / no new forbidden edges
 - `npx eslint` on touched inquiry files passes
 
@@ -228,15 +230,15 @@ Leave `inquiry-rate-limit-proof` Phase 2 unchecked. When this change’s Phase 1
 
 #### Automated
 
-- [ ] 2.1 `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` + inquiry `insert` besides tests
-- [ ] 2.2 `POST` still exports from `index.ts`
-- [ ] 2.3 `npm test -- --run src/lib/inquiry-submit.test.ts src/pages/api/inquiries/index.test.ts` passes
-- [ ] 2.4 `npx eslint` on the touched TS files passes
+- [x] 2.1 `src/lib/inquiry-submit.ts` exists and is the only production caller of `consumeInquiryRateLimit` and of `contact_inquiries` `.insert(` (inbox `listInquiriesForProfile` may still `.from("contact_inquiries")` for select)
+- [x] 2.2 `POST` still exports from `index.ts`
+- [x] 2.3 `npm test -- --run src/lib/inquiry-submit.test.ts src/pages/api/inquiries/index.test.ts` passes
+- [x] 2.4 `npx eslint` on the touched TS files passes
 
 #### Manual
 
-- [ ] 2.5 Published `/d/:id` still submits a valid inquiry (201 / thanks). No new copy.
-- [ ] 2.6 Confirm the route file no longer inlines `insert(` / `sendInquiryNotification`
+- [x] 2.5 Published `/d/:id` still submits a valid inquiry (201 / thanks). No new copy.
+- [x] 2.6 Confirm the route file no longer inlines `insert(` / `sendInquiryNotification`
 
 ### Phase 3: Enforce the thin POST
 
@@ -246,6 +248,8 @@ Leave `inquiry-rate-limit-proof` Phase 2 unchecked. When this change’s Phase 1
 - [ ] 3.2 `rg "consumeInquiryRateLimit" src/pages/api/inquiries/index.ts` is empty
 - [ ] 3.3 `npm run depcruise` finds no circular modules / no new forbidden edges
 - [ ] 3.4 `npx eslint` on touched inquiry files passes
+- [ ] 3.6 `rg "fetchPublishedDecoratorProfile" src/pages/api/inquiries/index.ts` is empty
+- [ ] 3.7 `rg "sendInquiryNotification" src/pages/api/inquiries/index.ts` is empty
 
 #### Manual
 
